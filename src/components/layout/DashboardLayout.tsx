@@ -12,7 +12,9 @@ import {
   ChevronRight,
   Award,
   FileQuestion,
-  Trophy
+  Trophy,
+  Calendar,
+  Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -71,6 +73,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         { label: 'Users', href: '/admin/users', icon: Users },
         { label: 'Analytics', href: '/admin/analytics', icon: Award },
         { label: 'All Courses', href: '/admin/courses', icon: BookOpen },
+        { label: 'Calendar', href: '/admin/calendar', icon: Calendar },
+        { label: 'Transactions', href: '/admin/transactions', icon: Wallet },
       ];
     }
 
@@ -79,6 +83,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         ...baseItems,
         { label: 'My Courses', href: '/teacher/courses', icon: BookOpen },
         { label: 'Quiz Results', href: '/teacher/results', icon: FileQuestion },
+        { label: 'Calendar', href: '/teacher/calendar', icon: Calendar },
       ];
     }
 
