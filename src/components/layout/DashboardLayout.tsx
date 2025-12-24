@@ -9,7 +9,9 @@ import {
   LogOut, 
   GraduationCap,
   Settings,
-  ChevronRight
+  ChevronRight,
+  Award,
+  FileQuestion
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -48,6 +50,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       return [
         ...baseItems,
         { label: 'My Courses', href: '/teacher/courses', icon: BookOpen },
+        { label: 'Quiz Results', href: '/teacher/results', icon: FileQuestion },
       ];
     }
 
@@ -56,6 +59,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       ...baseItems,
       { label: 'My Courses', href: '/student/courses', icon: BookOpen },
       { label: 'Browse Courses', href: '/student/browse', icon: GraduationCap },
+      { label: 'Badges', href: '/student/badges', icon: Award },
     ];
   };
 

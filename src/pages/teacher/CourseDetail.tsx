@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Edit, FileText, GripVertical, Loader2, Plus, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, GripVertical, Loader2, Plus, Trash2, Users, FileQuestion, BarChart3 } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type Course = Database['public']['Tables']['courses']['Row'];
@@ -318,6 +318,33 @@ export default function CourseDetail() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{enrollmentCount}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quiz Management */}
+        <div className="ml-14 sm:ml-0">
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileQuestion className="h-5 w-5 text-primary" />
+                Quizzes
+              </CardTitle>
+              <CardDescription>Create and manage quizzes for this course</CardDescription>
+            </CardHeader>
+            <CardContent className="flex gap-3">
+              <Button asChild>
+                <Link to={`/teacher/courses/${id}/quizzes`}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Manage Quizzes
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to={`/teacher/courses/${id}/results`}>
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  View Results
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
