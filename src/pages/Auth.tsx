@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
+import brighterBeeLogo from "@/assets/brighter-bee-logo.jpg";
 
 type AppRole = 'admin' | 'teacher' | 'student';
 
@@ -118,10 +119,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-lg mb-4 animate-float">
-            <span className="text-3xl">🐝</span>
-          </div>
-          <h1 className="text-3xl font-bold text-foreground">Brighter Bee</h1>
+          <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-20 w-auto mb-4 animate-float" />
           <p className="text-muted-foreground mt-1">Learning Management System</p>
         </div>
 

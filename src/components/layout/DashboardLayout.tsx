@@ -17,6 +17,7 @@ import {
   Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import brighterBeeLogo from "@/assets/brighter-bee-logo.jpg";
 
 type AppRole = 'admin' | 'teacher' | 'student';
 
@@ -104,11 +105,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card/95 backdrop-blur-sm">
         {/* Logo */}
-        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
-            <span className="text-lg">🐝</span>
-          </div>
-          <span className="text-xl font-bold text-foreground">Brighter Bee</span>
+        <div className="flex h-16 items-center gap-2 border-b border-border px-4">
+          <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-10 w-auto" />
         </div>
 
         {/* Navigation */}
