@@ -6,9 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, GraduationCap, BookOpen, Shield } from 'lucide-react';
 import { z } from 'zod';
+
+type AppRole = 'admin' | 'teacher' | 'student';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -21,6 +24,7 @@ export default function Auth() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
+  const [signupRole, setSignupRole] = useState<AppRole>('student');
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   const { user, role, signIn, signUp, loading } = useAuth();
@@ -81,7 +85,7 @@ export default function Auth() {
     if (!nameValid || !emailValid || !passwordValid) return;
 
     setIsLoading(true);
-    const { error } = await signUp(signupEmail, signupPassword, signupName);
+    const { error } = await signUp(signupEmail, signupPassword, signupName, signupRole);
     setIsLoading(false);
 
     if (error) {
@@ -221,6 +225,53 @@ export default function Auth() {
                       <p className="text-sm text-destructive">{errors.signupPassword}</p>
                     )}
                   </div>
+                  <div className="space-y-2">
+                    <Label>I am a...</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSignupRole('student')}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all ${
+                          signupRole === 'student'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <GraduationCap className={`h-5 w-5 ${signupRole === 'student' ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`text-xs font-medium ${signupRole === 'student' ? 'text-primary' : 'text-muted-foreground'}`}>
+                          Student
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSignupRole('teacher')}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all ${
+                          signupRole === 'teacher'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <BookOpen className={`h-5 w-5 ${signupRole === 'teacher' ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`text-xs font-medium ${signupRole === 'teacher' ? 'text-primary' : 'text-muted-foreground'}`}>
+                          Teacher
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSignupRole('admin')}
+                        className={`flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all ${
+                          signupRole === 'admin'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <Shield className={`h-5 w-5 ${signupRole === 'admin' ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`text-xs font-medium ${signupRole === 'admin' ? 'text-primary' : 'text-muted-foreground'}`}>
+                          Admin
+                        </span>
+                      </button>
+                    </div>
+                  </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -238,9 +289,7 @@ export default function Auth() {
         </Card>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          New accounts are created as students by default.
-          <br />
-          Contact an admin to change your role.
+          Select your role during signup to get started.
         </p>
       </div>
     </div>

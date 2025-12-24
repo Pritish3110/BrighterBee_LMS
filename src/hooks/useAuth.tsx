@@ -10,7 +10,7 @@ interface AuthContextType {
   session: Session | null;
   role: AppRole | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, role?: AppRole) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -76,19 +76,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, selectedRole: AppRole = 'student') => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          requested_role: selectedRole,
         },
       },
     });
+
+    // If signup successful and user exists, update their role if not student
+    if (!error && data.user && selectedRole !== 'student') {
+      // Update the role in user_roles table
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .update({ role: selectedRole })
+        .eq('user_id', data.user.id);
+      
+      if (roleError) {
+        console.error('Error updating role:', roleError);
+      }
+    }
 
     return { error: error as Error | null };
   };

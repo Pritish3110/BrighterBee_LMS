@@ -42,6 +42,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       return [
         ...baseItems,
         { label: 'Users', href: '/admin/users', icon: Users },
+        { label: 'Analytics', href: '/admin/analytics', icon: Award },
         { label: 'All Courses', href: '/admin/courses', icon: BookOpen },
       ];
     }
