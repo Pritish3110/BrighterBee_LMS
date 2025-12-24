@@ -10,6 +10,9 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentCourses from "./pages/student/StudentCourses";
+import BrowseCourses from "./pages/student/BrowseCourses";
+import StudentCourseDetail from "./pages/student/StudentCourseDetail";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherCourses from "./pages/teacher/TeacherCourses";
 import CourseForm from "./pages/teacher/CourseForm";
@@ -35,6 +38,21 @@ const App = () => (
             <Route path="/student" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/courses" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentCourses />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/browse" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <BrowseCourses />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/courses/:id" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentCourseDetail />
               </ProtectedRoute>
             } />
             
