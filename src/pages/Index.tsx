@@ -11,7 +11,7 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-10 w-auto" />
+            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-16 w-auto" />
           </div>
           <Link to="/auth">
             <Button className="bg-honey-500 hover:bg-honey-600 text-honey-foreground font-semibold">
@@ -128,7 +128,7 @@ const Index = () => {
       <footer className="container mx-auto px-4 py-8 border-t border-honey-200">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-8 w-auto" />
+            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-12 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2024 BrighterBee. Making learning sweet for little ones.
