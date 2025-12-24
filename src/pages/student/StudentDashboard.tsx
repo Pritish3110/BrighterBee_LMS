@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 import { useGamification } from '@/hooks/useGamification';
+import { StreakDisplay } from '@/components/StreakDisplay';
 import { supabase } from '@/integrations/supabase/client';
-import { BookOpen, GraduationCap, Trophy, ArrowRight, Loader2, Star, Award, Zap } from 'lucide-react';
+import { BookOpen, GraduationCap, Trophy, ArrowRight, Loader2, Star, Award, Zap, Flame } from 'lucide-react';
 
 interface EnrolledCourse {
   id: string;
@@ -21,7 +22,7 @@ interface EnrolledCourse {
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { xp, level, badges, loading: gamificationLoading, xpForNextLevel } = useGamification();
+  const { xp, level, badges, streak, loading: gamificationLoading, xpForNextLevel } = useGamification();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ enrolled: 0, completed: 0, inProgress: 0 });
@@ -182,11 +183,15 @@ export default function StudentDashboard() {
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Trophy className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm font-medium">Streak</CardTitle>
+              <Flame className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.completed}</div>
+              <StreakDisplay 
+                currentStreak={streak.current_streak} 
+                longestStreak={streak.longest_streak}
+                compact={false}
+              />
             </CardContent>
           </Card>
         </div>

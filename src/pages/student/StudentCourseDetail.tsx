@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { XPAnimation } from '@/components/XPAnimation';
 import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play, FileQuestion, Award, Sparkles } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
@@ -29,6 +30,11 @@ export default function StudentCourseDetail() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [markingComplete, setMarkingComplete] = useState<string | null>(null);
+  
+  // XP Animation state
+  const [showXPAnimation, setShowXPAnimation] = useState(false);
+  const [xpAmount, setXpAmount] = useState(0);
+  const [xpType, setXpType] = useState<'lesson' | 'course' | 'streak'>('lesson');
 
   useEffect(() => {
     if (id && user) {
@@ -156,7 +162,7 @@ export default function StudentCourseDetail() {
         if (error) throw error;
 
         // Award XP for lesson completion
-        await addXP(15, 'Lesson completed');
+        const { totalXP, streakBonus } = await addXP(15, 'Lesson completed');
 
         // Award "Busy Bee" badge for first lesson
         await awardBadgeByName('Busy Bee');
@@ -173,18 +179,30 @@ export default function StudentCourseDetail() {
 
         if (isNowComplete) {
           // Award bonus XP for course completion
-          await addXP(50, 'Course completed');
+          const courseResult = await addXP(50, 'Course completed');
           // Award "Honey Hunter" badge
           await awardBadgeByName('Honey Hunter');
 
+          // Show course completion animation
+          setXpAmount(50 + courseResult.streakBonus);
+          setXpType('course');
+          setShowXPAnimation(true);
+
           toast({
             title: '🏆 Course Completed!',
-            description: '+50 XP Bonus! You completed the entire course!',
+            description: `+${50 + courseResult.streakBonus} XP! You completed the entire course!`,
           });
         } else {
+          // Show lesson XP animation
+          setXpAmount(totalXP);
+          setXpType(streakBonus > 0 ? 'streak' : 'lesson');
+          setShowXPAnimation(true);
+
           toast({
             title: 'Great job! 🎉',
-            description: '+15 XP earned for completing a lesson!',
+            description: streakBonus > 0 
+              ? `+${totalXP} XP earned (includes +${streakBonus} streak bonus)!`
+              : `+${totalXP} XP earned for completing a lesson!`,
           });
         }
       }
@@ -225,6 +243,14 @@ export default function StudentCourseDetail() {
 
   return (
     <DashboardLayout>
+      {/* XP Animation */}
+      <XPAnimation
+        amount={xpAmount}
+        isVisible={showXPAnimation}
+        type={xpType}
+        onComplete={() => setShowXPAnimation(false)}
+      />
+      
       <div className="space-y-8">
         {/* Header */}
         <div className="flex items-start gap-4">

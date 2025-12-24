@@ -17,6 +17,7 @@ import StudentCourseDetail from "./pages/student/StudentCourseDetail";
 import TakeQuiz from "./pages/student/TakeQuiz";
 import Certificate from "./pages/student/Certificate";
 import Badges from "./pages/student/Badges";
+import Leaderboard from "./pages/student/Leaderboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherCourses from "./pages/teacher/TeacherCourses";
 import CourseForm from "./pages/teacher/CourseForm";
@@ -86,6 +87,11 @@ const App = () => (
             <Route path="/student/badges" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <Badges />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/leaderboard" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Leaderboard />
               </ProtectedRoute>
             } />
             
