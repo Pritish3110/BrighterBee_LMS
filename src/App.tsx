@@ -27,10 +27,13 @@ import QuizQuestions from "./pages/teacher/QuizQuestions";
 import QuizResults from "./pages/teacher/QuizResults";
 import CourseResults from "./pages/teacher/CourseResults";
 import AllQuizResults from "./pages/teacher/AllQuizResults";
+import TeacherCalendar from "./pages/teacher/TeacherCalendar";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCourses from "./pages/admin/AdminCourses";
+import AdminCalendar from "./pages/admin/AdminCalendar";
+import AdminTransactions from "./pages/admin/AdminTransactions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -147,6 +150,11 @@ const App = () => (
                 <AllQuizResults />
               </ProtectedRoute>
             } />
+            <Route path="/teacher/calendar" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherCalendar />
+              </ProtectedRoute>
+            } />
             
             {/* Admin Routes */}
             <Route path="/admin" element={
@@ -167,6 +175,16 @@ const App = () => (
             <Route path="/admin/courses" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminCourses />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/calendar" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminCalendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/transactions" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminTransactions />
               </ProtectedRoute>
             } />
             
