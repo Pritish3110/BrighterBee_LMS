@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, 
@@ -8,21 +9,46 @@ import {
   Users, 
   LogOut, 
   GraduationCap,
-  Settings,
   ChevronRight,
   Award,
   FileQuestion
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+type AppRole = 'admin' | 'teacher' | 'student';
+
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user, role, signOut } = useAuth();
+  const { user, role: contextRole, signOut } = useAuth();
+  const [role, setRole] = useState<AppRole | null>(contextRole as AppRole | null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchRole() {
+      if (!user) return;
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!cancelled) setRole((data?.role as AppRole) ?? 'student');
+    }
+
+    fetchRole();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const effectiveRole = role ?? (contextRole as AppRole | null);
 
   const handleSignOut = async () => {
     await signOut();
@@ -33,12 +59,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const baseItems = [
       { 
         label: 'Dashboard', 
-        href: `/${role}`, 
+        href: `/${effectiveRole ?? 'student'}`, 
         icon: LayoutDashboard 
       },
     ];
 
-    if (role === 'admin') {
+    if (effectiveRole === 'admin') {
       return [
         ...baseItems,
         { label: 'Users', href: '/admin/users', icon: Users },
@@ -47,7 +73,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       ];
     }
 
-    if (role === 'teacher') {
+    if (effectiveRole === 'teacher') {
       return [
         ...baseItems,
         { label: 'My Courses', href: '/teacher/courses', icon: BookOpen },
@@ -109,7 +135,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="truncate text-sm font-medium">{user?.email}</p>
-              <p className="text-xs text-muted-foreground capitalize">{role}</p>
+              <p className="text-xs text-muted-foreground capitalize">{effectiveRole}</p>
             </div>
           </div>
           <Button 

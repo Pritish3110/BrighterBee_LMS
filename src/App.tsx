@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // Pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import DashboardRedirect from "./pages/DashboardRedirect";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentCourses from "./pages/student/StudentCourses";
 import BrowseCourses from "./pages/student/BrowseCourses";
@@ -41,6 +42,14 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardRedirect />
+                </ProtectedRoute>
+              }
+            />
             
             {/* Student Routes */}
             <Route path="/student" element={
