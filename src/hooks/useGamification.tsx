@@ -107,7 +107,9 @@ export function useGamification() {
         },
       });
     } catch (error) {
-      console.error('Error fetching gamification data:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching gamification data:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -172,7 +174,9 @@ export function useGamification() {
 
       return streakBonus;
     } catch (error) {
-      console.error('Error updating streak:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating streak:', error);
+      }
       return 0;
     }
   };
@@ -211,7 +215,9 @@ export function useGamification() {
 
       return { totalXP: totalAmount, streakBonus };
     } catch (error) {
-      console.error('Error adding XP:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error adding XP:', error);
+      }
       return { totalXP: 0, streakBonus: 0 };
     }
   };
@@ -233,7 +239,9 @@ export function useGamification() {
             badge_id: badge.id,
           });
       } catch (error) {
-        console.error('Error unlocking badge:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error unlocking badge:', error);
+        }
       }
     }
   };
@@ -257,7 +265,9 @@ export function useGamification() {
 
       await fetchGamificationData();
     } catch (error) {
-      console.error('Error awarding badge:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error awarding badge:', error);
+      }
     }
   };
 

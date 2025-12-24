@@ -12,12 +12,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Loader2, Trophy, XCircle, CheckCircle, Sparkles } from 'lucide-react';
 
+// Question interface without correct_answer for security
 interface Question {
   id: string;
   question_text: string;
   question_type: 'mcq' | 'true_false';
   options: string[];
+  points: number;
+}
+
+// Result from server-side verification
+interface QuestionResult {
+  question_id: string;
+  question_text: string;
+  user_answer: string | null;
   correct_answer: string;
+  is_correct: boolean;
   points: number;
 }
 
@@ -48,6 +58,7 @@ export default function TakeQuiz() {
     maxScore: number;
     passed: boolean;
     percentage: number;
+    questionResults: QuestionResult[];
   } | null>(null);
 
   useEffect(() => {
@@ -96,22 +107,25 @@ export default function TakeQuiz() {
 
       setQuiz(quizData);
 
+      // SECURITY FIX: Use secure RPC function that excludes correct_answer
       const { data: questionsData, error: questionsError } = await supabase
-        .from('quiz_questions')
-        .select('*')
-        .eq('quiz_id', quizId!)
-        .order('question_order', { ascending: true });
+        .rpc('get_quiz_questions_for_student', { p_quiz_id: quizId! });
 
       if (questionsError) throw questionsError;
 
       setQuestions(
-        (questionsData || []).map((q) => ({
-          ...q,
+        (questionsData || []).map((q: any) => ({
+          id: q.id,
+          question_text: q.question_text,
+          question_type: q.question_type,
           options: Array.isArray(q.options) ? (q.options as string[]) : [],
+          points: q.points,
         }))
       );
     } catch (error) {
-      console.error('Error fetching quiz:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching quiz:', error);
+      }
       toast({
         title: 'Error',
         description: 'Failed to load quiz.',
@@ -131,54 +145,50 @@ export default function TakeQuiz() {
 
     setSubmitting(true);
     try {
-      // Calculate score
-      let score = 0;
-      let maxScore = 0;
-
-      questions.forEach((q) => {
-        maxScore += q.points;
-        if (answers[q.id] === q.correct_answer) {
-          score += q.points;
-        }
+      // SECURITY FIX: Use server-side verification RPC function
+      const { data, error } = await supabase.rpc('verify_quiz_answers', {
+        p_quiz_id: quiz.id,
+        p_student_id: user.id,
+        p_answers: answers,
       });
-
-      const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-      const passed = percentage >= quiz.passing_score;
-
-      // Save attempt
-      const { error } = await supabase
-        .from('quiz_attempts')
-        .insert({
-          quiz_id: quiz.id,
-          student_id: user.id,
-          answers,
-          score,
-          max_score: maxScore,
-          passed,
-        });
 
       if (error) throw error;
 
-      setResult({ score, maxScore, passed, percentage });
-      setSubmitted(true);
+      if (data && data.length > 0) {
+        const resultData = data[0];
+        const questionResults = Array.isArray(resultData.question_results) 
+          ? (resultData.question_results as unknown as QuestionResult[])
+          : [];
+        
+        setResult({
+          score: resultData.score,
+          maxScore: resultData.max_score,
+          passed: resultData.passed,
+          percentage: resultData.percentage,
+          questionResults,
+        });
+        setSubmitted(true);
 
-      // Award XP based on score
-      const xpEarned = Math.round(score / 2);
-      if (xpEarned > 0) {
-        await addXP(xpEarned);
+        // Award XP based on score
+        const xpEarned = Math.round(resultData.score / 2);
+        if (xpEarned > 0) {
+          await addXP(xpEarned);
+        }
+
+        // Award quiz badge if passed
+        if (resultData.passed) {
+          await awardBadgeByName('Quiz Whiz');
+        }
+
+        toast({
+          title: resultData.passed ? 'Quiz Passed! 🎉' : 'Quiz Complete',
+          description: `You scored ${resultData.percentage}% (${resultData.score}/${resultData.max_score} points)`,
+        });
       }
-
-      // Award quiz badge if passed
-      if (passed) {
-        await awardBadgeByName('Quiz Whiz');
-      }
-
-      toast({
-        title: passed ? 'Quiz Passed! 🎉' : 'Quiz Complete',
-        description: `You scored ${percentage}% (${score}/${maxScore} points)`,
-      });
     } catch (error: any) {
-      console.error('Error submitting quiz:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error submitting quiz:', error);
+      }
       toast({
         title: 'Error',
         description: error.message || 'Failed to submit quiz.',
@@ -258,33 +268,28 @@ export default function TakeQuiz() {
 
               <div className="space-y-4 pt-4">
                 <h3 className="font-medium">Review Your Answers</h3>
-                {questions.map((q, index) => {
-                  const userAnswer = answers[q.id];
-                  const isCorrect = userAnswer === q.correct_answer;
-                  
-                  return (
-                    <div key={q.id} className="text-left p-4 rounded-lg bg-muted">
-                      <div className="flex items-start gap-2">
-                        {isCorrect ? (
-                          <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        )}
-                        <div>
-                          <p className="font-medium">{index + 1}. {q.question_text}</p>
-                          <p className={`text-sm mt-1 ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                            Your answer: {userAnswer || 'Not answered'}
+                {result.questionResults.map((qr, index) => (
+                  <div key={qr.question_id} className="text-left p-4 rounded-lg bg-muted">
+                    <div className="flex items-start gap-2">
+                      {qr.is_correct ? (
+                        <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <p className="font-medium">{index + 1}. {qr.question_text}</p>
+                        <p className={`text-sm mt-1 ${qr.is_correct ? 'text-green-600' : 'text-red-600'}`}>
+                          Your answer: {qr.user_answer || 'Not answered'}
+                        </p>
+                        {!qr.is_correct && (
+                          <p className="text-sm text-green-600 mt-1">
+                            Correct answer: {qr.correct_answer}
                           </p>
-                          {!isCorrect && (
-                            <p className="text-sm text-green-600 mt-1">
-                              Correct answer: {q.correct_answer}
-                            </p>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
 
               <div className="flex gap-4 pt-4">

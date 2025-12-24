@@ -54,7 +54,9 @@ export default function AdminUsers() {
 
       setUsers(usersWithRoles);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching users:', error);
+      }
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -68,16 +70,13 @@ export default function AdminUsers() {
   const handleRoleChange = async (userId: string, newRole: 'admin' | 'teacher' | 'student') => {
     setUpdatingRole(userId);
     try {
-      // First, delete existing role
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      // Then insert new role
+      // SECURITY FIX: Use upsert instead of delete+insert to avoid race condition
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: newRole });
+        .upsert(
+          { user_id: userId, role: newRole },
+          { onConflict: 'user_id' }
+        );
 
       if (error) throw error;
 
@@ -93,7 +92,9 @@ export default function AdminUsers() {
         description: `User role has been changed to ${newRole}`,
       });
     } catch (error) {
-      console.error('Error updating role:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating role:', error);
+      }
       toast({
         variant: 'destructive',
         title: 'Error',

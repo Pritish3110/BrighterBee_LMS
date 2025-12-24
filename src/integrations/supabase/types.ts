@@ -544,6 +544,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_quiz_questions_for_student: {
+        Args: { p_quiz_id: string }
+        Returns: {
+          id: string
+          options: Json
+          points: number
+          question_order: number
+          question_text: string
+          question_type: Database["public"]["Enums"]["question_type"]
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -554,6 +565,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      verify_quiz_answers: {
+        Args: { p_answers: Json; p_quiz_id: string; p_student_id: string }
+        Returns: {
+          max_score: number
+          passed: boolean
+          percentage: number
+          question_results: Json
+          score: number
+        }[]
       }
     }
     Enums: {

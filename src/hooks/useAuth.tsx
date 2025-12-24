@@ -65,12 +65,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching role:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error fetching role:', error);
+        }
       } else if (data) {
         setRole(data.role as AppRole);
       }
     } catch (err) {
-      console.error('Error fetching role:', err);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching role:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -100,7 +104,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('user_id', data.user.id);
       
       if (roleError) {
-        console.error('Error updating role:', roleError);
+        if (import.meta.env.DEV) {
+          console.error('Error updating role:', roleError);
+        }
       }
     }
 
