@@ -11,7 +11,8 @@ import {
   GraduationCap,
   ChevronRight,
   Award,
-  FileQuestion
+  FileQuestion,
+  Trophy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -86,6 +87,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       ...baseItems,
       { label: 'My Courses', href: '/student/courses', icon: BookOpen },
       { label: 'Browse Courses', href: '/student/browse', icon: GraduationCap },
+      { label: 'Leaderboard', href: '/student/leaderboard', icon: Trophy },
       { label: 'Badges', href: '/student/badges', icon: Award },
     ];
   };
