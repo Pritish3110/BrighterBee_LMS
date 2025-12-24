@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -32,9 +33,10 @@ const ContactSection = () => {
     phone: "",
     state: "",
     city: "",
+    message: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -46,7 +48,7 @@ const ContactSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.first_name || !formData.last_name || !formData.email || !formData.phone || !formData.state || !formData.city) {
+    if (!formData.first_name || !formData.last_name || !formData.email || !formData.phone || !formData.state || !formData.city || !formData.message) {
       toast({
         title: "Missing Fields",
         description: "Please fill in all required fields.",
@@ -68,6 +70,7 @@ const ContactSection = () => {
           phone: formData.phone,
           state: formData.state,
           city: formData.city,
+          message: formData.message,
           to_email: "brighterbeeindia@gmail.com",
         },
         EMAILJS_PUBLIC_KEY
@@ -85,6 +88,7 @@ const ContactSection = () => {
         phone: "",
         state: "",
         city: "",
+        message: "",
       });
     } catch (error) {
       console.error("EmailJS Error:", error);
@@ -267,6 +271,19 @@ const ContactSection = () => {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message">Your Inquiry</Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  placeholder="Write your inquiry or message here..."
+                  rows={4}
+                  required
+                />
               </div>
 
               <Button
