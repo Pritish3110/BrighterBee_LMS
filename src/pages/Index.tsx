@@ -11,7 +11,7 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-20 md:h-28 w-auto" />
+            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-40 md:h-56 w-auto" />
           </div>
           <Link to="/auth">
             <Button className="bg-honey-500 hover:bg-honey-600 text-honey-foreground font-semibold">
