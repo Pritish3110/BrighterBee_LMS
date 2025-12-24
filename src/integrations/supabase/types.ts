@@ -113,6 +113,7 @@ export type Database = {
           id: string
           lesson_id: string
           student_id: string
+          xp_awarded: boolean
         }
         Insert: {
           completed?: boolean
@@ -120,6 +121,7 @@ export type Database = {
           id?: string
           lesson_id: string
           student_id: string
+          xp_awarded?: boolean
         }
         Update: {
           completed?: boolean
@@ -127,6 +129,7 @@ export type Database = {
           id?: string
           lesson_id?: string
           student_id?: string
+          xp_awarded?: boolean
         }
         Relationships: [
           {

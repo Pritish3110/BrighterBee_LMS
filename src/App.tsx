@@ -25,6 +25,7 @@ import CourseDetail from "./pages/teacher/CourseDetail";
 import QuizManager from "./pages/teacher/QuizManager";
 import QuizQuestions from "./pages/teacher/QuizQuestions";
 import QuizResults from "./pages/teacher/QuizResults";
+import CourseResults from "./pages/teacher/CourseResults";
 import AllQuizResults from "./pages/teacher/AllQuizResults";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -138,7 +139,7 @@ const App = () => (
             } />
             <Route path="/teacher/courses/:courseId/results" element={
               <ProtectedRoute allowedRoles={['teacher']}>
-                <QuizResults />
+                <CourseResults />
               </ProtectedRoute>
             } />
             <Route path="/teacher/results" element={

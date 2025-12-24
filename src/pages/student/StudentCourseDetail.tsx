@@ -15,6 +15,7 @@ import { Database } from '@/integrations/supabase/types';
 type Course = Database['public']['Tables']['courses']['Row'];
 type Lesson = Database['public']['Tables']['lessons']['Row'] & {
   completed: boolean;
+  xp_awarded: boolean;
 };
 type Quiz = Database['public']['Tables']['quizzes']['Row'];
 
@@ -89,17 +90,18 @@ export default function StudentCourseDetail() {
       // Fetch progress for all lessons
       const { data: progressData } = await supabase
         .from('lesson_progress')
-        .select('lesson_id, completed')
+        .select('lesson_id, completed, xp_awarded')
         .eq('student_id', user!.id)
         .in('lesson_id', (lessonsData || []).map(l => l.id));
 
       const progressMap = new Map(
-        (progressData || []).map(p => [p.lesson_id, p.completed])
+        (progressData || []).map(p => [p.lesson_id, { completed: p.completed, xp_awarded: p.xp_awarded }])
       );
 
       const lessonsWithProgress = (lessonsData || []).map(lesson => ({
         ...lesson,
-        completed: progressMap.get(lesson.id) || false,
+        completed: progressMap.get(lesson.id)?.completed || false,
+        xp_awarded: progressMap.get(lesson.id)?.xp_awarded || false,
       }));
 
       setLessons(lessonsWithProgress);
@@ -127,11 +129,15 @@ export default function StudentCourseDetail() {
   const toggleLessonComplete = async (lessonId: string, currentlyCompleted: boolean) => {
     setMarkingComplete(lessonId);
     try {
+      // Find the lesson to check if XP was already awarded
+      const lesson = lessons.find(l => l.id === lessonId);
+      const alreadyAwardedXP = lesson?.xp_awarded || false;
+
       if (currentlyCompleted) {
-        // Mark as incomplete
+        // Mark as incomplete - just update completed status, keep xp_awarded as true
         const { error } = await supabase
           .from('lesson_progress')
-          .delete()
+          .update({ completed: false })
           .eq('lesson_id', lessonId)
           .eq('student_id', user!.id);
 
@@ -148,6 +154,9 @@ export default function StudentCourseDetail() {
         });
       } else {
         // Mark as complete - upsert to handle existing records
+        // Only set xp_awarded to true if we're about to award XP
+        const shouldAwardXP = !alreadyAwardedXP;
+        
         const { error } = await supabase
           .from('lesson_progress')
           .upsert({
@@ -155,54 +164,64 @@ export default function StudentCourseDetail() {
             student_id: user!.id,
             completed: true,
             completed_at: new Date().toISOString(),
+            xp_awarded: shouldAwardXP ? true : alreadyAwardedXP,
           }, {
             onConflict: 'lesson_id,student_id',
           });
 
         if (error) throw error;
 
-        // Award XP for lesson completion
-        const { totalXP, streakBonus } = await addXP(15, 'Lesson completed');
-
-        // Award "Busy Bee" badge for first lesson
-        await awardBadgeByName('Busy Bee');
-
         // Update local state
         const updatedLessons = lessons.map(l => 
-          l.id === lessonId ? { ...l, completed: true } : l
+          l.id === lessonId ? { ...l, completed: true, xp_awarded: shouldAwardXP ? true : l.xp_awarded } : l
         );
         setLessons(updatedLessons);
 
-        // Check if course is now complete
-        const newCompletedCount = updatedLessons.filter(l => l.completed).length;
-        const isNowComplete = newCompletedCount === lessons.length;
+        // Only award XP if not already awarded
+        if (shouldAwardXP) {
+          // Award XP for lesson completion
+          const { totalXP, streakBonus } = await addXP(15, 'Lesson completed');
 
-        if (isNowComplete) {
-          // Award bonus XP for course completion
-          const courseResult = await addXP(50, 'Course completed');
-          // Award "Honey Hunter" badge
-          await awardBadgeByName('Honey Hunter');
+          // Award "Busy Bee" badge for first lesson
+          await awardBadgeByName('Busy Bee');
 
-          // Show course completion animation
-          setXpAmount(50 + courseResult.streakBonus);
-          setXpType('course');
-          setShowXPAnimation(true);
+          // Check if course is now complete
+          const newCompletedCount = updatedLessons.filter(l => l.completed).length;
+          const isNowComplete = newCompletedCount === lessons.length;
 
-          toast({
-            title: '🏆 Course Completed!',
-            description: `+${50 + courseResult.streakBonus} XP! You completed the entire course!`,
-          });
+          if (isNowComplete) {
+            // Award bonus XP for course completion
+            const courseResult = await addXP(50, 'Course completed');
+            // Award "Honey Hunter" badge
+            await awardBadgeByName('Honey Hunter');
+
+            // Show course completion animation
+            setXpAmount(50 + courseResult.streakBonus);
+            setXpType('course');
+            setShowXPAnimation(true);
+
+            toast({
+              title: '🏆 Course Completed!',
+              description: `+${50 + courseResult.streakBonus} XP! You completed the entire course!`,
+            });
+          } else {
+            // Show lesson XP animation
+            setXpAmount(totalXP);
+            setXpType(streakBonus > 0 ? 'streak' : 'lesson');
+            setShowXPAnimation(true);
+
+            toast({
+              title: 'Great job! 🎉',
+              description: streakBonus > 0 
+                ? `+${totalXP} XP earned (includes +${streakBonus} streak bonus)!`
+                : `+${totalXP} XP earned for completing a lesson!`,
+            });
+          }
         } else {
-          // Show lesson XP animation
-          setXpAmount(totalXP);
-          setXpType(streakBonus > 0 ? 'streak' : 'lesson');
-          setShowXPAnimation(true);
-
+          // Already awarded XP, just show completion message
           toast({
-            title: 'Great job! 🎉',
-            description: streakBonus > 0 
-              ? `+${totalXP} XP earned (includes +${streakBonus} streak bonus)!`
-              : `+${totalXP} XP earned for completing a lesson!`,
+            title: 'Lesson completed',
+            description: 'You already earned XP for this lesson.',
           });
         }
       }

@@ -30,7 +30,7 @@ interface Quiz {
 }
 
 export default function TakeQuiz() {
-  const { courseId, quizId } = useParams();
+  const { quizId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addXP, awardBadgeByName } = useGamification();
@@ -51,13 +51,14 @@ export default function TakeQuiz() {
   } | null>(null);
 
   useEffect(() => {
-    if (quizId) {
+    if (quizId && user) {
       fetchQuiz();
     }
-  }, [quizId]);
+  }, [quizId, user]);
 
   const fetchQuiz = async () => {
     try {
+      // First fetch the quiz to get course_id
       const { data: quizData, error: quizError } = await supabase
         .from('quizzes')
         .select('*')
@@ -66,7 +67,30 @@ export default function TakeQuiz() {
 
       if (quizError) throw quizError;
       if (!quizData) {
-        navigate(`/student/courses/${courseId}`);
+        toast({
+          title: 'Error',
+          description: 'Quiz not found.',
+          variant: 'destructive',
+        });
+        navigate('/student/courses');
+        return;
+      }
+
+      // Check enrollment using the quiz's course_id
+      const { data: enrollment } = await supabase
+        .from('enrollments')
+        .select('id')
+        .eq('course_id', quizData.course_id)
+        .eq('student_id', user!.id)
+        .maybeSingle();
+
+      if (!enrollment) {
+        toast({
+          title: 'Not enrolled',
+          description: 'You need to enroll in this course first.',
+          variant: 'destructive',
+        });
+        navigate('/student/browse');
         return;
       }
 
@@ -185,7 +209,7 @@ export default function TakeQuiz() {
         <div className="flex flex-col items-center justify-center py-24">
           <p className="text-muted-foreground mb-4">No questions in this quiz.</p>
           <Button asChild>
-            <Link to={`/student/courses/${courseId}`}>Back to Course</Link>
+            <Link to={`/student/courses/${quiz?.course_id}`}>Back to Course</Link>
           </Button>
         </div>
       </DashboardLayout>
@@ -265,7 +289,7 @@ export default function TakeQuiz() {
 
               <div className="flex gap-4 pt-4">
                 <Button asChild variant="outline" className="flex-1">
-                  <Link to={`/student/courses/${courseId}`}>Back to Course</Link>
+                  <Link to={`/student/courses/${quiz?.course_id}`}>Back to Course</Link>
                 </Button>
                 <Button onClick={() => {
                   setAnswers({});
@@ -289,7 +313,7 @@ export default function TakeQuiz() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/student/courses/${courseId}`)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/student/courses/${quiz?.course_id}`)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1">
