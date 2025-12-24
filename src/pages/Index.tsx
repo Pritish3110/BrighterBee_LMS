@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users, Sparkles } from "lucide-react";
 import brighterBeeLogo from "@/assets/brighter-bee-logo.jpg";
+import ContactSection from "@/components/ContactSection";
 
 const Index = () => {
   return (
@@ -123,6 +124,9 @@ const Index = () => {
           </Link>
         </div>
       </section>
+
+      {/* Contact Section */}
+      <ContactSection />
 
       {/* Footer */}
       <footer className="container mx-auto px-4 py-8 border-t border-honey-200">
