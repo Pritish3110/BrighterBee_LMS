@@ -68,8 +68,21 @@ export default function AdminTransactions() {
     },
   });
 
+  type TransactionInsert = {
+    type: 'income' | 'expense';
+    category: string;
+    amount: number;
+    description?: string | null;
+    student_id?: string | null;
+    course_id?: string | null;
+    receipt_number?: string | null;
+    payment_method?: string | null;
+    transaction_date: string;
+    created_by: string;
+  };
+
   const createTransactionMutation = useMutation({
-    mutationFn: async (transactionData: Partial<Transaction>) => {
+    mutationFn: async (transactionData: TransactionInsert) => {
       const { error } = await supabase.from('transactions').insert([transactionData]);
       if (error) throw error;
     },
