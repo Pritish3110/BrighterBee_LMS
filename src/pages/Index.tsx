@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users, Sparkles } from "lucide-react";
+import brighterBeeLogo from "@/assets/brighter-bee-logo.jpg";
 
 const Index = () => {
   return (
@@ -10,10 +11,7 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-honey-400 flex items-center justify-center">
-              <span className="text-2xl">🐝</span>
-            </div>
-            <span className="text-2xl font-bold text-foreground">BrighterBee</span>
+            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-10 w-auto" />
           </div>
           <Link to="/auth">
             <Button className="bg-honey-500 hover:bg-honey-600 text-honey-foreground font-semibold">
@@ -130,8 +128,7 @@ const Index = () => {
       <footer className="container mx-auto px-4 py-8 border-t border-honey-200">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🐝</span>
-            <span className="font-semibold text-foreground">BrighterBee</span>
+            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-8 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2024 BrighterBee. Making learning sweet for little ones.
