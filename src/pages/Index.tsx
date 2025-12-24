@@ -13,7 +13,7 @@ const Index = () => {
             <div className="h-10 w-10 rounded-full bg-honey-400 flex items-center justify-center">
               <span className="text-2xl">🐝</span>
             </div>
-            <span className="text-2xl font-bold text-foreground">BeeLearn</span>
+            <span className="text-2xl font-bold text-foreground">BrighterBee</span>
           </div>
           <Link to="/auth">
             <Button className="bg-honey-500 hover:bg-honey-600 text-honey-foreground font-semibold">
@@ -31,7 +31,7 @@ const Index = () => {
             <span className="text-sm font-medium">Learning Made Sweet</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Welcome to <span className="text-honey-500">BeeLearn</span>
+            Welcome to <span className="text-honey-500">BrighterBee</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             A buzzing learning management system for nursery, junior KG, and senior KG students. 
@@ -53,7 +53,7 @@ const Index = () => {
       {/* Features Section */}
       <section className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-          Why Choose BeeLearn?
+          Why Choose BrighterBee?
         </h2>
         <div className="grid md:grid-cols-3 gap-6">
           <Card className="border-honey-200 hover:shadow-lg hover:shadow-honey-200/50 transition-all">
@@ -131,10 +131,10 @@ const Index = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-xl">🐝</span>
-            <span className="font-semibold text-foreground">BeeLearn</span>
+            <span className="font-semibold text-foreground">BrighterBee</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 BeeLearn. Making learning sweet for little ones.
+            © 2024 BrighterBee. Making learning sweet for little ones.
           </p>
         </div>
       </footer>
