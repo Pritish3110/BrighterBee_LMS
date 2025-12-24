@@ -11,6 +11,9 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherCourses from "./pages/teacher/TeacherCourses";
+import CourseForm from "./pages/teacher/CourseForm";
+import CourseDetail from "./pages/teacher/CourseDetail";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import NotFound from "./pages/NotFound";
@@ -39,6 +42,26 @@ const App = () => (
             <Route path="/teacher" element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <TeacherDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/courses" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherCourses />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/courses/new" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <CourseForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/courses/:id" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <CourseDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/courses/:id/edit" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <CourseForm />
               </ProtectedRoute>
             } />
             
