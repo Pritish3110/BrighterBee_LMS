@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
 import emailjs from "@emailjs/browser";
@@ -98,127 +99,123 @@ const ContactSection = () => {
   };
 
   return (
-    <section className="bg-gray-900 text-white py-16">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left Side - Contact Info */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Get In <span className="text-honey-400">Touch</span>
-              </h2>
-              <p className="text-gray-300 text-lg">
-                Have questions about our programs? We'd love to hear from you!
-              </p>
+    <section className="container mx-auto px-4 py-16">
+      <h2 className="text-3xl font-bold text-center text-foreground mb-12">
+        Get In Touch
+      </h2>
+      
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Left Side - Contact Info */}
+        <Card className="border-honey-200 hover:shadow-lg hover:shadow-honey-200/50 transition-all">
+          <CardHeader>
+            <CardTitle className="text-xl">Contact Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Address */}
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl bg-honey-100 flex items-center justify-center flex-shrink-0">
+                <MapPin className="h-6 w-6 text-honey-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Address</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  BRIGHTER BEE, 424, Opera Business Hub,<br />
+                  Lajamni Chowk, Mota Varachha,<br />
+                  Surat, Gujarat, India – 394101
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-6">
-              {/* Address */}
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-xl bg-honey-500/20 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-6 w-6 text-honey-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Address</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    BRIGHTER BEE, 424, Opera Business Hub,<br />
-                    Lajamni Chowk, Mota Varachha,<br />
-                    Surat, Gujarat, India – 394101
-                  </p>
-                </div>
+            {/* Phone */}
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl bg-honey-100 flex items-center justify-center flex-shrink-0">
+                <Phone className="h-6 w-6 text-honey-600" />
               </div>
-
-              {/* Phone */}
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-xl bg-honey-500/20 flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-6 w-6 text-honey-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Phone</h3>
-                  <a href="tel:7575066990" className="text-gray-300 hover:text-honey-400 transition-colors">
-                    7575066990
-                  </a>
-                </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Phone</h3>
+                <a href="tel:7575066990" className="text-muted-foreground hover:text-honey-600 transition-colors">
+                  7575066990
+                </a>
               </div>
+            </div>
 
-              {/* Email */}
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-xl bg-honey-500/20 flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-6 w-6 text-honey-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Email</h3>
-                  <a href="mailto:brighterbeeindia@gmail.com" className="text-gray-300 hover:text-honey-400 transition-colors">
-                    brighterbeeindia@gmail.com
-                  </a>
-                </div>
+            {/* Email */}
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl bg-honey-100 flex items-center justify-center flex-shrink-0">
+                <Mail className="h-6 w-6 text-honey-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Email</h3>
+                <a href="mailto:brighterbeeindia@gmail.com" className="text-muted-foreground hover:text-honey-600 transition-colors">
+                  brighterbeeindia@gmail.com
+                </a>
               </div>
             </div>
 
             {/* Social Icons */}
-            <div className="pt-4">
-              <h3 className="font-semibold text-lg mb-4">Follow Us</h3>
-              <div className="flex gap-4">
+            <div className="pt-4 border-t border-honey-200">
+              <h3 className="font-semibold text-foreground mb-4">Follow Us</h3>
+              <div className="flex gap-3">
                 <a
                   href="#"
-                  className="h-12 w-12 rounded-xl bg-honey-500/20 flex items-center justify-center hover:bg-honey-500/40 transition-colors"
+                  className="h-10 w-10 rounded-xl bg-honey-100 flex items-center justify-center hover:bg-honey-200 transition-colors"
                   aria-label="Facebook"
                 >
-                  <Facebook className="h-5 w-5 text-honey-400" />
+                  <Facebook className="h-5 w-5 text-honey-600" />
                 </a>
                 <a
                   href="#"
-                  className="h-12 w-12 rounded-xl bg-honey-500/20 flex items-center justify-center hover:bg-honey-500/40 transition-colors"
+                  className="h-10 w-10 rounded-xl bg-honey-100 flex items-center justify-center hover:bg-honey-200 transition-colors"
                   aria-label="Instagram"
                 >
-                  <Instagram className="h-5 w-5 text-honey-400" />
+                  <Instagram className="h-5 w-5 text-honey-600" />
                 </a>
                 <a
                   href="#"
-                  className="h-12 w-12 rounded-xl bg-honey-500/20 flex items-center justify-center hover:bg-honey-500/40 transition-colors"
+                  className="h-10 w-10 rounded-xl bg-honey-100 flex items-center justify-center hover:bg-honey-200 transition-colors"
                   aria-label="YouTube"
                 >
-                  <Youtube className="h-5 w-5 text-honey-400" />
+                  <Youtube className="h-5 w-5 text-honey-600" />
                 </a>
               </div>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Right Side - Form */}
-          <div className="bg-gray-800 rounded-2xl p-6 md:p-8">
-            <h3 className="text-2xl font-bold mb-6">
-              Send Us an <span className="text-honey-400">Inquiry</span>
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Right Side - Form */}
+        <Card className="border-honey-200 hover:shadow-lg hover:shadow-honey-200/50 transition-all">
+          <CardHeader>
+            <CardTitle className="text-xl">Send Us an Inquiry</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="first_name" className="text-gray-200">First Name</Label>
+                  <Label htmlFor="first_name">First Name</Label>
                   <Input
                     id="first_name"
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleInputChange}
                     placeholder="Enter first name"
-                    className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-honey-400"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="last_name" className="text-gray-200">Last Name</Label>
+                  <Label htmlFor="last_name">Last Name</Label>
                   <Input
                     id="last_name"
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleInputChange}
                     placeholder="Enter last name"
-                    className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-honey-400"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-200">Email</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   name="email"
@@ -226,13 +223,12 @@ const ContactSection = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Enter email address"
-                  className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-honey-400"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-gray-200">Phone Number</Label>
+                <Label htmlFor="phone">Phone Number</Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -240,21 +236,20 @@ const ContactSection = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="Enter phone number"
-                  className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-honey-400"
                   required
                 />
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="state" className="text-gray-200">State</Label>
+                  <Label htmlFor="state">State</Label>
                   <Select value={formData.state} onValueChange={handleStateChange}>
-                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:border-honey-400">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select state" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
+                    <SelectContent className="max-h-60">
                       {INDIAN_STATES.map((state) => (
-                        <SelectItem key={state} value={state} className="text-white hover:bg-gray-600 focus:bg-gray-600">
+                        <SelectItem key={state} value={state}>
                           {state}
                         </SelectItem>
                       ))}
@@ -262,14 +257,13 @@ const ContactSection = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-gray-200">City</Label>
+                  <Label htmlFor="city">City</Label>
                   <Input
                     id="city"
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
                     placeholder="Enter city"
-                    className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-honey-400"
                     required
                   />
                 </div>
@@ -278,13 +272,13 @@ const ContactSection = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-honey-500 hover:bg-honey-600 text-gray-900 font-semibold py-3 text-lg disabled:opacity-50"
+                className="w-full bg-honey-500 hover:bg-honey-600 text-honey-foreground font-semibold"
               >
                 {isSubmitting ? "Sending..." : "Submit Inquiry"}
               </Button>
             </form>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
