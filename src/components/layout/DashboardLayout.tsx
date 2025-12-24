@@ -1,0 +1,129 @@
+import { ReactNode } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { 
+  LayoutDashboard, 
+  BookOpen, 
+  Users, 
+  LogOut, 
+  GraduationCap,
+  Settings,
+  ChevronRight
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { user, role, signOut } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  const getNavItems = () => {
+    const baseItems = [
+      { 
+        label: 'Dashboard', 
+        href: `/${role}`, 
+        icon: LayoutDashboard 
+      },
+    ];
+
+    if (role === 'admin') {
+      return [
+        ...baseItems,
+        { label: 'Users', href: '/admin/users', icon: Users },
+        { label: 'All Courses', href: '/admin/courses', icon: BookOpen },
+      ];
+    }
+
+    if (role === 'teacher') {
+      return [
+        ...baseItems,
+        { label: 'My Courses', href: '/teacher/courses', icon: BookOpen },
+      ];
+    }
+
+    // Student
+    return [
+      ...baseItems,
+      { label: 'My Courses', href: '/student/courses', icon: BookOpen },
+      { label: 'Browse Courses', href: '/student/browse', icon: GraduationCap },
+    ];
+  };
+
+  const navItems = getNavItems();
+
+  return (
+    <div className="min-h-screen bg-background honeycomb-pattern">
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card/95 backdrop-blur-sm">
+        {/* Logo */}
+        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
+            <span className="text-lg">🐝</span>
+          </div>
+          <span className="text-xl font-bold text-foreground">Brighter Bee</span>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex flex-col gap-1 p-4">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+                {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User section */}
+        <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold">
+              {user?.email?.[0].toUpperCase() || 'U'}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="truncate text-sm font-medium">{user?.email}</p>
+              <p className="text-xs text-muted-foreground capitalize">{role}</p>
+            </div>
+          </div>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-2" 
+            onClick={handleSignOut}
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="pl-64">
+        <div className="min-h-screen p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}
