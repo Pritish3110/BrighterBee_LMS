@@ -70,8 +70,21 @@ export default function AdminCalendar() {
     },
   });
 
+  type EventInsert = {
+    title: string;
+    description?: string | null;
+    event_type: string;
+    start_date: string;
+    end_date?: string | null;
+    all_day?: boolean;
+    color?: string;
+    is_system_wide?: boolean;
+    created_by: string;
+    course_id?: string | null;
+  };
+
   const createEventMutation = useMutation({
-    mutationFn: async (eventData: Partial<Event>) => {
+    mutationFn: async (eventData: EventInsert) => {
       const { error } = await supabase.from('events').insert([eventData]);
       if (error) throw error;
     },
