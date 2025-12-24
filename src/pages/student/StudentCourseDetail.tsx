@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play, FileQuestion, Award } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play, FileQuestion, Award, Sparkles } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type Course = Database['public']['Tables']['courses']['Row'];
@@ -21,6 +22,7 @@ export default function StudentCourseDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { addXP, awardBadgeByName } = useGamification();
   
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState<Course | null>(null);
@@ -128,6 +130,16 @@ export default function StudentCourseDetail() {
           .eq('student_id', user!.id);
 
         if (error) throw error;
+
+        // Update local state
+        setLessons(lessons.map(l => 
+          l.id === lessonId ? { ...l, completed: false } : l
+        ));
+
+        toast({
+          title: 'Lesson unmarked',
+          description: 'Lesson marked as incomplete',
+        });
       } else {
         // Mark as complete - upsert to handle existing records
         const { error } = await supabase
@@ -142,19 +154,40 @@ export default function StudentCourseDetail() {
           });
 
         if (error) throw error;
+
+        // Award XP for lesson completion
+        await addXP(15, 'Lesson completed');
+
+        // Award "Busy Bee" badge for first lesson
+        await awardBadgeByName('Busy Bee');
+
+        // Update local state
+        const updatedLessons = lessons.map(l => 
+          l.id === lessonId ? { ...l, completed: true } : l
+        );
+        setLessons(updatedLessons);
+
+        // Check if course is now complete
+        const newCompletedCount = updatedLessons.filter(l => l.completed).length;
+        const isNowComplete = newCompletedCount === lessons.length;
+
+        if (isNowComplete) {
+          // Award bonus XP for course completion
+          await addXP(50, 'Course completed');
+          // Award "Honey Hunter" badge
+          await awardBadgeByName('Honey Hunter');
+
+          toast({
+            title: '🏆 Course Completed!',
+            description: '+50 XP Bonus! You completed the entire course!',
+          });
+        } else {
+          toast({
+            title: 'Great job! 🎉',
+            description: '+15 XP earned for completing a lesson!',
+          });
+        }
       }
-
-      // Update local state
-      setLessons(lessons.map(l => 
-        l.id === lessonId ? { ...l, completed: !currentlyCompleted } : l
-      ));
-
-      toast({
-        title: currentlyCompleted ? 'Lesson unmarked' : 'Great job! 🎉',
-        description: currentlyCompleted 
-          ? 'Lesson marked as incomplete'
-          : 'Lesson completed!',
-      });
     } catch (error: any) {
       console.error('Error updating progress:', error);
       toast({
