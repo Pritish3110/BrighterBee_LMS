@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { BookOpen, GraduationCap, Trophy, ArrowRight, Loader2 } from 'lucide-react';
+import { BookOpen, GraduationCap, Trophy, ArrowRight, Loader2, Star, Award, Zap } from 'lucide-react';
 
 interface EnrolledCourse {
   id: string;
@@ -20,6 +21,7 @@ interface EnrolledCourse {
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const { xp, level, badges, loading: gamificationLoading, xpForNextLevel } = useGamification();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ enrolled: 0, completed: 0, inProgress: 0 });
@@ -142,36 +144,77 @@ export default function StudentDashboard() {
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Gamification Stats */}
+        <div className="grid gap-4 md:grid-cols-4">
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>
-              <BookOpen className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm font-medium">Level</CardTitle>
+              <Star className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.enrolled}</div>
+              <div className="text-3xl font-bold">{level}</div>
+              <div className="mt-2">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>{xp} XP</span>
+                  <span>{xpForNextLevel(level)} XP</span>
+                </div>
+                <Progress value={(xp % 100)} className="h-1.5" />
+              </div>
             </CardContent>
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-              <GraduationCap className="h-4 w-4 text-secondary" />
+              <CardTitle className="text-sm font-medium">Total XP</CardTitle>
+              <Zap className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.inProgress}</div>
+              <div className="text-3xl font-bold">{xp}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-honey-gradient-soft border-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
+              <Award className="h-4 w-4 text-accent" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{badges.length}</div>
             </CardContent>
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Trophy className="h-4 w-4 text-accent" />
+              <Trophy className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{stats.completed}</div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Badges Display */}
+        {badges.length > 0 && (
+          <Card className="bg-honey-gradient-soft border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
+                Your Badges
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                {badges.map((userBadge) => (
+                  <div
+                    key={userBadge.badge_id}
+                    className="flex items-center gap-2 bg-background rounded-full px-4 py-2 border border-primary/20"
+                  >
+                    <span className="text-xl">{userBadge.badge.icon === 'award' ? '🏆' : userBadge.badge.icon === 'star' ? '⭐' : userBadge.badge.icon === 'bee' ? '🐝' : '🎖️'}</span>
+                    <span className="font-medium text-sm">{userBadge.badge.name}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Enrolled Courses */}
         <div>

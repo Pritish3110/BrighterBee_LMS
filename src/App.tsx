@@ -15,6 +15,7 @@ import BrowseCourses from "./pages/student/BrowseCourses";
 import StudentCourseDetail from "./pages/student/StudentCourseDetail";
 import TakeQuiz from "./pages/student/TakeQuiz";
 import Certificate from "./pages/student/Certificate";
+import Badges from "./pages/student/Badges";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherCourses from "./pages/teacher/TeacherCourses";
 import CourseForm from "./pages/teacher/CourseForm";
@@ -22,6 +23,7 @@ import CourseDetail from "./pages/teacher/CourseDetail";
 import QuizManager from "./pages/teacher/QuizManager";
 import QuizQuestions from "./pages/teacher/QuizQuestions";
 import QuizResults from "./pages/teacher/QuizResults";
+import AllQuizResults from "./pages/teacher/AllQuizResults";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import NotFound from "./pages/NotFound";
@@ -60,14 +62,19 @@ const App = () => (
                 <StudentCourseDetail />
               </ProtectedRoute>
             } />
-            <Route path="/student/courses/:courseId/quiz/:quizId" element={
+            <Route path="/student/quiz/:quizId" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <TakeQuiz />
               </ProtectedRoute>
             } />
-            <Route path="/student/courses/:courseId/certificate" element={
+            <Route path="/student/certificate/:courseId" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <Certificate />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/badges" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Badges />
               </ProtectedRoute>
             } />
             
@@ -110,6 +117,16 @@ const App = () => (
             <Route path="/teacher/courses/:courseId/quizzes/:quizId/results" element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <QuizResults />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/courses/:courseId/results" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <QuizResults />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/results" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <AllQuizResults />
               </ProtectedRoute>
             } />
             

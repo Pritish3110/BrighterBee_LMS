@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,13 +7,14 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play, FileQuestion, Award } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type Course = Database['public']['Tables']['courses']['Row'];
 type Lesson = Database['public']['Tables']['lessons']['Row'] & {
   completed: boolean;
 };
+type Quiz = Database['public']['Tables']['quizzes']['Row'];
 
 export default function StudentCourseDetail() {
   const { id } = useParams();
@@ -24,6 +25,7 @@ export default function StudentCourseDetail() {
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [markingComplete, setMarkingComplete] = useState<string | null>(null);
 
   useEffect(() => {
@@ -93,6 +95,15 @@ export default function StudentCourseDetail() {
       }));
 
       setLessons(lessonsWithProgress);
+
+      // Fetch quizzes for this course
+      const { data: quizzesData } = await supabase
+        .from('quizzes')
+        .select('*')
+        .eq('course_id', id!)
+        .order('created_at', { ascending: true });
+
+      setQuizzes(quizzesData || []);
     } catch (error) {
       console.error('Error fetching course:', error);
       toast({
@@ -212,9 +223,17 @@ export default function StudentCourseDetail() {
             </div>
             <Progress value={progressPercent} className="h-3" />
             {progressPercent === 100 && (
-              <p className="text-center mt-4 text-primary font-medium">
-                🎉 Congratulations! You've completed this course!
-              </p>
+              <div className="text-center mt-4">
+                <p className="text-primary font-medium mb-2">
+                  🎉 Congratulations! You've completed this course!
+                </p>
+                <Button asChild size="sm">
+                  <Link to={`/student/certificate/${id}`}>
+                    <Award className="mr-2 h-4 w-4" />
+                    View Certificate
+                  </Link>
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -297,6 +316,39 @@ export default function StudentCourseDetail() {
             </div>
           )}
         </div>
+
+        {/* Quizzes Section */}
+        {quizzes.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <FileQuestion className="h-5 w-5" />
+              Quizzes
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {quizzes.map((quiz) => (
+                <Card key={quiz.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{quiz.title}</CardTitle>
+                    <CardDescription>{quiz.description || 'Test your knowledge!'}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Passing score: {quiz.passing_score}%
+                      </span>
+                      <Button asChild>
+                        <Link to={`/student/quiz/${quiz.id}`}>
+                          <Play className="mr-2 h-4 w-4" />
+                          Take Quiz
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
