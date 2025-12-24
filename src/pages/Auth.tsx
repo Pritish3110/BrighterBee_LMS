@@ -119,7 +119,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-20 w-auto mb-4 animate-float" />
+          <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-40 w-auto mb-4 animate-float drop-shadow-[0_0_25px_rgba(251,191,36,0.4)]" />
           <p className="text-muted-foreground mt-1">Learning Management System</p>
         </div>
 
