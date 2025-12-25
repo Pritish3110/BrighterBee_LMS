@@ -8,12 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, GraduationCap, Search, Loader2, CheckCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, Search, Loader2, CheckCircle, Lock } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Course = Database['public']['Tables']['courses']['Row'] & {
   lessonCount: number;
   isEnrolled: boolean;
+  prerequisites: { id: string; title: string; isCompleted: boolean }[];
+  canEnroll: boolean;
 };
 
 type GradeLevel = Database['public']['Enums']['grade_level'] | 'all';
@@ -52,7 +55,34 @@ export default function BrowseCourses() {
 
       const enrolledCourseIds = new Set(enrollments?.map(e => e.course_id) || []);
 
-      // Get lesson counts for each course
+      // Fetch all prerequisites
+      const { data: allPrerequisites } = await supabase
+        .from('course_prerequisites')
+        .select('course_id, prerequisite_course_id');
+
+      // Fetch completed courses (all lessons completed)
+      const completedCourseIds = new Set<string>();
+      for (const courseId of enrolledCourseIds) {
+        const { data: lessons } = await supabase
+          .from('lessons')
+          .select('id')
+          .eq('course_id', courseId);
+        
+        if (lessons && lessons.length > 0) {
+          const { data: progress } = await supabase
+            .from('lesson_progress')
+            .select('lesson_id')
+            .eq('student_id', user!.id)
+            .eq('completed', true)
+            .in('lesson_id', lessons.map(l => l.id));
+          
+          if (progress && progress.length === lessons.length) {
+            completedCourseIds.add(courseId);
+          }
+        }
+      }
+
+      // Get lesson counts and prerequisites for each course
       const coursesWithDetails = await Promise.all(
         (coursesData || []).map(async (course) => {
           const { count } = await supabase
@@ -60,10 +90,27 @@ export default function BrowseCourses() {
             .select('*', { count: 'exact', head: true })
             .eq('course_id', course.id);
 
+          // Get prerequisites for this course
+          const coursePrereqs = allPrerequisites?.filter(p => p.course_id === course.id) || [];
+          const prerequisites = await Promise.all(
+            coursePrereqs.map(async (prereq) => {
+              const prereqCourse = coursesData?.find(c => c.id === prereq.prerequisite_course_id);
+              return {
+                id: prereq.prerequisite_course_id,
+                title: prereqCourse?.title || 'Unknown Course',
+                isCompleted: completedCourseIds.has(prereq.prerequisite_course_id),
+              };
+            })
+          );
+
+          const canEnroll = prerequisites.length === 0 || prerequisites.every(p => p.isCompleted);
+
           return {
             ...course,
             lessonCount: count || 0,
             isEnrolled: enrolledCourseIds.has(course.id),
+            prerequisites,
+            canEnroll,
           };
         })
       );
@@ -77,6 +124,16 @@ export default function BrowseCourses() {
   };
 
   const handleEnroll = async (courseId: string) => {
+    const course = courses.find(c => c.id === courseId);
+    if (!course?.canEnroll) {
+      toast({
+        title: 'Prerequisites Required',
+        description: 'You must complete prerequisite courses before enrolling.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setEnrollingId(courseId);
     try {
       const { error } = await supabase
@@ -215,7 +272,21 @@ export default function BrowseCourses() {
                     {course.description || 'No description'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-2">
+                  {course.prerequisites.length > 0 && !course.isEnrolled && (
+                    <div className="text-xs text-muted-foreground mb-2">
+                      <span className="font-medium">Prerequisites: </span>
+                      {course.prerequisites.map((prereq, idx) => (
+                        <span key={prereq.id}>
+                          <span className={prereq.isCompleted ? 'text-green-600' : 'text-destructive'}>
+                            {prereq.title}
+                            {prereq.isCompleted ? ' ✓' : ' ✗'}
+                          </span>
+                          {idx < course.prerequisites.length - 1 && ', '}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {course.isEnrolled ? (
                     <Button asChild className="w-full" variant="outline">
                       <Link to={`/student/courses/${course.id}`}>
@@ -223,6 +294,20 @@ export default function BrowseCourses() {
                         Continue Learning
                       </Link>
                     </Button>
+                  ) : !course.canEnroll ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button className="w-full" variant="secondary" disabled>
+                            <Lock className="mr-2 h-4 w-4" />
+                            Prerequisites Required
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Complete the prerequisite courses before enrolling.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ) : (
                     <Button 
                       className="w-full"
