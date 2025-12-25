@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { Plus, TrendingUp, TrendingDown, DollarSign, Receipt, Download, Trash2, Search } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, DollarSign, Receipt, Download, Trash2, Search, Package } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface Transaction {
@@ -65,6 +65,19 @@ export default function AdminTransactions() {
       
       if (error) throw error;
       return data as Transaction[];
+    },
+  });
+
+  // Fetch kit orders for summary
+  const { data: kitOrders = [] } = useQuery({
+    queryKey: ['kit-orders-summary'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('kit_orders')
+        .select('price, status, order_date');
+      
+      if (error) throw error;
+      return data || [];
     },
   });
 
@@ -341,7 +354,7 @@ export default function AdminTransactions() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -387,6 +400,33 @@ export default function AdminTransactions() {
             <CardContent>
               <div className="text-2xl font-bold">{transactions.length}</div>
               <p className="text-xs text-muted-foreground">This month: {thisMonthTransactions.length}</p>
+            </CardContent>
+          </Card>
+
+          {/* Kit Orders Stats */}
+          <Card className="border-primary/30 bg-honey-gradient-soft">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Kit Revenue</CardTitle>
+              <Package className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">
+                ₹{kitOrders.reduce((sum, o) => sum + Number(o.price), 0).toLocaleString()}
+              </div>
+              <p className="text-xs text-muted-foreground">From {kitOrders.length} orders</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/30 bg-honey-gradient-soft">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Kits Sold</CardTitle>
+              <Package className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{kitOrders.length}</div>
+              <p className="text-xs text-muted-foreground">
+                {kitOrders.filter(o => o.status === 'delivered').length} delivered
+              </p>
             </CardContent>
           </Card>
         </div>
