@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Get authorization header
+    // Get authorization header and extract token
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -21,26 +21,26 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Create Supabase client with user's token
+    // Extract JWT from Bearer token
+    const token = authHeader.replace('Bearer ', '')
+
+    // Create Supabase admin client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Verify the user is an admin
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    })
-
-    const { data: { user }, error: userError } = await userClient.auth.getUser()
+    // Verify user with the token using admin client
+    const { data: { user }, error: userError } = await adminClient.auth.getUser(token)
     if (userError || !user) {
+      console.error('User verification failed:', userError)
       return new Response(
         JSON.stringify({ error: 'Invalid user token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Check if user is admin
-    const { data: roleData, error: roleError } = await userClient
+    // Check if user is admin using admin client
+    const { data: roleData, error: roleError } = await adminClient
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
@@ -53,9 +53,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Use service role to list all auth users
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey)
-
+    // List all auth users
     const { data: authUsers, error: authError } = await adminClient.auth.admin.listUsers()
     if (authError) {
       throw authError
