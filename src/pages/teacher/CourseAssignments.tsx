@@ -10,11 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Edit, Trash2, Loader2, ClipboardList, Calendar, Users } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, Loader2, ClipboardList, Calendar, Users, FileIcon, X } from 'lucide-react';
 import { format, isPast } from 'date-fns';
+import { FileDropzone } from '@/components/FileDropzone';
 
 interface Assignment {
   id: string;
@@ -45,12 +47,23 @@ export default function CourseAssignments() {
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Bulk delete state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // File upload state
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [existingFileUrl, setExistingFileUrl] = useState<string | null>(null);
+  const [existingFileName, setExistingFileName] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     title: '',
     description: '',
     due_date: '',
     due_time: '23:59',
-    lesson_id: '',
+    lesson_id: 'none',
   });
 
   useEffect(() => {
@@ -99,6 +112,7 @@ export default function CourseAssignments() {
       );
 
       setAssignments(assignmentsWithCounts);
+      setSelectedIds(new Set());
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({ title: 'Error loading assignments', variant: 'destructive' });
@@ -116,13 +130,39 @@ export default function CourseAssignments() {
         description: assignment.description || '',
         due_date: format(dueDate, 'yyyy-MM-dd'),
         due_time: format(dueDate, 'HH:mm'),
-        lesson_id: assignment.lesson_id || '',
+        lesson_id: assignment.lesson_id || 'none',
       });
+      // We don't have file_url in the current schema visible, so reset file state
+      setExistingFileUrl(null);
+      setExistingFileName(null);
     } else {
       setEditingAssignment(null);
-      setForm({ title: '', description: '', due_date: '', due_time: '23:59', lesson_id: '' });
+      setForm({ title: '', description: '', due_date: '', due_time: '23:59', lesson_id: 'none' });
+      setExistingFileUrl(null);
+      setExistingFileName(null);
     }
+    setFile(null);
     setDialogOpen(true);
+  };
+
+  const uploadFile = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${courseId}/${Date.now()}.${fileExt}`;
+    
+    const { error } = await supabase.storage
+      .from('assignments')
+      .upload(fileName, file);
+
+    if (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('assignments')
+      .getPublicUrl(fileName);
+
+    return urlData.publicUrl;
   };
 
   const handleSave = async () => {
@@ -132,8 +172,18 @@ export default function CourseAssignments() {
     }
 
     setSaving(true);
+    setUploading(!!file);
+    
     try {
+      let fileUrl = existingFileUrl;
+      
+      // Upload file if selected
+      if (file) {
+        fileUrl = await uploadFile(file);
+      }
+
       const dueDateTime = new Date(`${form.due_date}T${form.due_time}`).toISOString();
+      const lessonId = form.lesson_id === 'none' ? null : form.lesson_id;
 
       if (editingAssignment) {
         const { error } = await supabase
@@ -142,7 +192,7 @@ export default function CourseAssignments() {
             title: form.title.trim(),
             description: form.description.trim() || null,
             due_date: dueDateTime,
-            lesson_id: form.lesson_id || null,
+            lesson_id: lessonId,
           })
           .eq('id', editingAssignment.id);
 
@@ -156,7 +206,7 @@ export default function CourseAssignments() {
             title: form.title.trim(),
             description: form.description.trim() || null,
             due_date: dueDateTime,
-            lesson_id: form.lesson_id || null,
+            lesson_id: lessonId,
             created_by: user!.id,
           });
 
@@ -171,6 +221,7 @@ export default function CourseAssignments() {
       toast({ title: 'Error saving assignment', description: error.message, variant: 'destructive' });
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   };
 
@@ -182,6 +233,47 @@ export default function CourseAssignments() {
       fetchData();
     } catch (error: any) {
       toast({ title: 'Error deleting assignment', variant: 'destructive' });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    
+    setBulkDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('assignments')
+        .delete()
+        .in('id', Array.from(selectedIds));
+
+      if (error) throw error;
+      
+      toast({ title: `${selectedIds.size} assignment(s) deleted` });
+      setBulkDeleteOpen(false);
+      fetchData();
+    } catch (error: any) {
+      console.error('Bulk delete error:', error);
+      toast({ title: 'Error deleting assignments', variant: 'destructive' });
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedIds(newSet);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === assignments.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(assignments.map(a => a.id)));
     }
   };
 
@@ -209,86 +301,137 @@ export default function CourseAssignments() {
               <p className="text-muted-foreground">{courseTitle}</p>
             </div>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => openDialog()}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Assignment
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>{editingAssignment ? 'Edit Assignment' : 'Create Assignment'}</DialogTitle>
-                <DialogDescription>
-                  {editingAssignment ? 'Update assignment details' : 'Add a new assignment to this course'}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    placeholder="Assignment title"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    placeholder="Assignment instructions..."
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="due_date">Due Date *</Label>
-                    <Input
-                      id="due_date"
-                      type="date"
-                      value={form.due_date}
-                      onChange={(e) => setForm({ ...form, due_date: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="due_time">Due Time</Label>
-                    <Input
-                      id="due_time"
-                      type="time"
-                      value={form.due_time}
-                      onChange={(e) => setForm({ ...form, due_time: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lesson">Link to Lesson (optional)</Label>
-                  <Select value={form.lesson_id} onValueChange={(v) => setForm({ ...form, lesson_id: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a lesson" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">None</SelectItem>
-                      {lessons.map((lesson) => (
-                        <SelectItem key={lesson.id} value={lesson.id}>
-                          {lesson.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  {editingAssignment ? 'Update' : 'Create'}
+          <div className="flex items-center gap-2">
+            {selectedIds.size > 0 && (
+              <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete ({selectedIds.size})
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete {selectedIds.size} Assignment(s)</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will delete the selected assignments and all their submissions. This cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleBulkDelete}
+                      disabled={bulkDeleting}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {bulkDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      Delete All
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => openDialog()}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Assignment
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>{editingAssignment ? 'Edit Assignment' : 'Create Assignment'}</DialogTitle>
+                  <DialogDescription>
+                    {editingAssignment ? 'Update assignment details' : 'Add a new assignment to this course'}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
+                      id="title"
+                      value={form.title}
+                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      placeholder="Assignment title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      placeholder="Assignment instructions..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="due_date">Due Date *</Label>
+                      <Input
+                        id="due_date"
+                        type="date"
+                        value={form.due_date}
+                        onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="due_time">Due Time</Label>
+                      <Input
+                        id="due_time"
+                        type="time"
+                        value={form.due_time}
+                        onChange={(e) => setForm({ ...form, due_time: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lesson">Link to Lesson (optional)</Label>
+                    <Select value={form.lesson_id} onValueChange={(v) => setForm({ ...form, lesson_id: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a lesson" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {lessons.map((lesson) => (
+                          <SelectItem key={lesson.id} value={lesson.id}>
+                            {lesson.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Attachment (optional)</Label>
+                    <FileDropzone
+                      onFileSelect={setFile}
+                      accept={{
+                        'application/pdf': ['.pdf'],
+                        'application/msword': ['.doc'],
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+                        'image/*': ['.png', '.jpg', '.jpeg'],
+                      }}
+                      maxSize={10 * 1024 * 1024}
+                      uploading={uploading}
+                      currentFile={file ? { name: file.name } : existingFileUrl ? { name: existingFileName || 'Attached file', url: existingFileUrl } : undefined}
+                      onRemove={() => {
+                        setFile(null);
+                        setExistingFileUrl(null);
+                        setExistingFileName(null);
+                      }}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    {editingAssignment ? 'Update' : 'Create'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Assignments List */}
@@ -308,11 +451,35 @@ export default function CourseAssignments() {
           </Card>
         ) : (
           <div className="space-y-3">
+            {/* Select all bar */}
+            <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-lg">
+              <Checkbox
+                checked={selectedIds.size === assignments.length && assignments.length > 0}
+                onCheckedChange={toggleSelectAll}
+                aria-label="Select all"
+              />
+              <span className="text-sm text-muted-foreground">
+                {selectedIds.size > 0 
+                  ? `${selectedIds.size} of ${assignments.length} selected`
+                  : 'Select all'
+                }
+              </span>
+            </div>
+
             {assignments.map((assignment) => {
               const isOverdue = isPast(new Date(assignment.due_date));
+              const isSelected = selectedIds.has(assignment.id);
               return (
-                <Card key={assignment.id} className="hover:shadow-md transition-shadow">
+                <Card 
+                  key={assignment.id} 
+                  className={`hover:shadow-md transition-shadow ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                >
                   <CardContent className="flex items-center gap-4 p-4">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelect(assignment.id)}
+                      aria-label={`Select ${assignment.title}`}
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium">{assignment.title}</h4>
