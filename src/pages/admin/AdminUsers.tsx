@@ -15,6 +15,7 @@ interface UserWithRole {
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;
+  email: string | null;
   role: 'admin' | 'teacher' | 'student';
 }
 
@@ -33,29 +34,18 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const response = await supabase.functions.invoke('list-users');
 
-      if (profilesError) throw profilesError;
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to fetch users');
+      }
 
-      const usersWithRoles = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', profile.id)
-            .maybeSingle();
+      const result = response.data;
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
-          return {
-            ...profile,
-            role: (roleData?.role as 'admin' | 'teacher' | 'student') || 'student',
-          };
-        })
-      );
-
-      setUsers(usersWithRoles);
+      setUsers(result.users || []);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -159,7 +149,8 @@ export default function AdminUsers() {
   };
 
   const filteredUsers = users.filter((user) =>
-    user.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getRoleBadgeColor = (role: string) => {
@@ -217,6 +208,7 @@ export default function AdminUsers() {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-3 px-4 font-medium">User</th>
+                      <th className="text-left py-3 px-4 font-medium">Email</th>
                       <th className="text-left py-3 px-4 font-medium">Joined</th>
                       <th className="text-left py-3 px-4 font-medium">Current Role</th>
                       <th className="text-left py-3 px-4 font-medium">Change Role</th>
@@ -235,6 +227,9 @@ export default function AdminUsers() {
                               {user.full_name || 'Unnamed User'}
                             </span>
                           </div>
+                        </td>
+                        <td className="py-4 px-4 text-muted-foreground text-sm">
+                          {user.email || '—'}
                         </td>
                         <td className="py-4 px-4 text-muted-foreground">
                           {new Date(user.created_at).toLocaleDateString()}

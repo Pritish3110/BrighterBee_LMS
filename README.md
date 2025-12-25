@@ -1,250 +1,389 @@
-# BrighterBee LMS – Bee-Themed Learning Management System
+# 🐝 BrighterBee LMS
+
+[![Built with Lovable](https://img.shields.io/badge/Built%20with-Lovable-FFD700?style=flat-square)](https://lovable.dev)
+[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
+[![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
 
 ![BrighterBee Logo](src/assets/brighter-bee-logo.jpg)
 
-## Project Overview
+---
 
-BrighterBee is a **bee-themed Learning Management System** designed specifically for **preschool education**. The platform caters to young learners in:
+## 📖 Project Description
 
-- **Nursery**
-- **Junior KG**
-- **Senior KG**
+**BrighterBee LMS** is a preschool-focused Learning Management System built for **Brighter Bee**, located in **Surat, Gujarat, India**. The platform features a distinctive **bee-themed yellow and black UI** designed to create an engaging, child-friendly learning environment.
 
-It features a **role-based LMS** with dedicated access for **Admin**, **Teacher**, and **Student** roles, focusing on **gamified, child-friendly learning** experiences.
+### Key Highlights
+
+- 🎓 **Preschool Education Focus** – Designed for Nursery, Junior KG, and Senior KG students
+- 🐝 **Bee-Themed UI** – Consistent honey-colored design system throughout
+- 👥 **Role-Based Access** – Separate dashboards for Admin, Teacher, and Student
+- 🎮 **Gamification** – XP, badges, streaks, and leaderboards to motivate young learners
+- 📱 **Fully Responsive** – Works on desktop, tablet, and mobile devices
+
+> **Note:** This is a personal portfolio/resume project. No real users, payments, or transactions are processed.
 
 ---
 
-## Features
+## ✨ Key Features
 
-### Authentication & Access Control
-- Secure authentication with role-based access (Admin / Teacher / Student)
-- Auto-confirm email signups for seamless onboarding
-- Row Level Security (RLS) policies on all database tables
+### 👨‍🎓 Student Features
 
-### Admin Dashboard
-- User management and role assignment
-- Platform-wide analytics
-- Course oversight across all teachers
-- Calendar management for system-wide events
-- Transaction tracking and financial overview
+| Feature | Description |
+|---------|-------------|
+| **Dashboard** | Personal overview of enrolled courses, progress, and gamification stats |
+| **Browse & Enroll** | Explore available courses and self-enroll |
+| **Lessons** | View lessons with resources and materials |
+| **Quizzes** | Interactive quizzes with immediate feedback |
+| **Assignments** | View and submit assignments with file upload |
+| **Gamification** | Earn XP, level up, collect badges, maintain streaks |
+| **Leaderboard** | Compete with other students for top ranks |
+| **Certificate Preview** | View course completion certificates (preview only) |
+| **Calendar** | View events, deadlines, and assignment due dates |
+| **Kit Ordering** | Order study kits recommended by level and grade |
+| **Profile Completion** | Required profile info before kit ordering |
 
-### Teacher Dashboard
-- Course and lesson management
-- Quiz creation (text-only questions: MCQ and True/False)
-- Student progress tracking and quiz results
-- Calendar for class scheduling
+### 👩‍🏫 Teacher Features
 
-### Student Dashboard
-- Course browsing and enrollment
-- Interactive quizzes with immediate feedback
-- Gamified learning experience:
-  - XP points and leveling system
-  - Achievement badges
-  - Daily streaks
-  - Leaderboard rankings
-- Progress tracking across enrolled courses
-- Certificate preview pages (HTML only)
+| Feature | Description |
+|---------|-------------|
+| **Dashboard** | Overview of courses, students, and recent activity |
+| **Course Management** | Create, edit, publish, and delete courses |
+| **Lesson Management** | Add lessons with descriptions and resource URLs |
+| **Quiz Creation** | Create quizzes with MCQ and True/False questions |
+| **Assignment Management** | Create assignments with due dates |
+| **Submission Review** | View student submissions with name, time, and file |
+| **Grade Assignments** | Provide grades and feedback on submissions |
+| **View Results** | See quiz results and student performance |
+| **Calendar** | Manage personal calendar and view course events |
+| **Drag-and-Drop Upload** | Easy file and material uploads |
 
-### UI/UX
-- Bee-themed UI with consistent honey-colored design system
-- Responsive design for all device sizes
-- Child-friendly, engaging interface
-- Smooth animations and transitions
+### 👨‍💼 Admin Features
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | React 18 + TypeScript |
-| **Styling** | Tailwind CSS + shadcn/ui components |
-| **Backend** | Supabase (Authentication + PostgreSQL) |
-| **Database Security** | Row Level Security (RLS) policies |
-| **Build Tool** | Vite |
-| **State Management** | TanStack React Query |
-| **Routing** | React Router v6 |
-| **Form Validation** | Zod + React Hook Form |
+| Feature | Description |
+|---------|-------------|
+| **Dashboard** | Platform-wide statistics and overview |
+| **User Management** | View all users with emails, names, and roles |
+| **Role Assignment** | Promote/demote users between roles |
+| **User Deletion** | Permanently delete users (auth + all related data) |
+| **Study Kit Management** | Create, edit, delete, and price study kits |
+| **Kit Order Management** | View student kit orders and their status |
+| **Transaction Dashboard** | Full income/expense tracking |
+| **Analytics** | Platform usage and performance metrics |
+| **Calendar** | Create system-wide events |
+| **Course Oversight** | View all courses across all teachers |
 
 ---
 
-## Project Structure
+## 🛠️ Tech Stack
 
-```
-src/
-├── assets/                    # Static assets (logos, images)
-├── components/
-│   ├── layout/               # Layout components (DashboardLayout)
-│   └── ui/                   # Reusable UI components (shadcn/ui)
-├── hooks/                    # Custom React hooks
-│   ├── useAuth.tsx          # Authentication hook
-│   └── useGamification.tsx  # Gamification logic
-├── integrations/
-│   └── supabase/            # Supabase client and types
-├── lib/                     # Utility functions
-├── pages/
-│   ├── admin/               # Admin dashboard pages
-│   │   ├── AdminDashboard.tsx
-│   │   ├── AdminUsers.tsx
-│   │   ├── AdminAnalytics.tsx
-│   │   ├── AdminCourses.tsx
-│   │   ├── AdminCalendar.tsx
-│   │   └── AdminTransactions.tsx
-│   ├── teacher/             # Teacher dashboard pages
-│   │   ├── TeacherDashboard.tsx
-│   │   ├── TeacherCourses.tsx
-│   │   ├── CourseDetail.tsx
-│   │   ├── CourseForm.tsx
-│   │   ├── QuizManager.tsx
-│   │   ├── QuizQuestions.tsx
-│   │   ├── QuizResults.tsx
-│   │   └── TeacherCalendar.tsx
-│   ├── student/             # Student dashboard pages
-│   │   ├── StudentDashboard.tsx
-│   │   ├── StudentCourses.tsx
-│   │   ├── StudentCourseDetail.tsx
-│   │   ├── BrowseCourses.tsx
-│   │   ├── TakeQuiz.tsx
-│   │   ├── Leaderboard.tsx
-│   │   ├── Badges.tsx
-│   │   └── Certificate.tsx
-│   ├── Auth.tsx             # Authentication page
-│   ├── Index.tsx            # Landing page
-│   └── NotFound.tsx         # 404 page
-├── App.tsx                  # Main app with routing
-├── main.tsx                 # Application entry point
-└── index.css                # Global styles and design tokens
-```
+### Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| **React 18** | UI library |
+| **TypeScript** | Type-safe JavaScript |
+| **Vite** | Fast build tool and dev server |
+| **Tailwind CSS** | Utility-first CSS framework |
+| **shadcn/ui** | Accessible UI component library |
+| **React Router v6** | Client-side routing |
+| **TanStack React Query** | Data fetching and caching |
+| **React Hook Form + Zod** | Form handling and validation |
+| **Lucide React** | Icon library |
+| **Recharts** | Data visualization charts |
+
+### Backend
+
+| Technology | Purpose |
+|------------|---------|
+| **Supabase** | Backend-as-a-Service |
+| **PostgreSQL** | Database |
+| **Supabase Auth** | Authentication |
+| **Supabase Storage** | File storage (assignments) |
+| **Edge Functions** | Serverless functions (Deno) |
+| **Row Level Security** | Database access control |
+
+### Deployment & Hosting
+
+| Platform | Purpose |
+|----------|---------|
+| **Vercel** | Production hosting |
+| **GitHub** | Version control |
+| **Lovable Cloud** | Backend infrastructure |
 
 ---
 
-## Environment Variables
+## 🗄️ Database Overview
 
-Create a `.env` file in the project root with the following variables:
+### Core Tables
 
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+| Table | Description |
+|-------|-------------|
+| `profiles` | User profile information (name, avatar, phone, location) |
+| `user_roles` | Role assignments (admin, teacher, student) |
+| `courses` | Course details (title, description, grade level, teacher) |
+| `lessons` | Lessons within courses with order and resources |
+| `enrollments` | Student course enrollments |
+| `lesson_progress` | Student lesson completion tracking |
+| `assignments` | Course assignments with due dates |
+| `assignment_submissions` | Student assignment submissions with grading |
 
-> **Note:** These are automatically configured when using Lovable Cloud.
+### Quiz Tables
+
+| Table | Description |
+|-------|-------------|
+| `quizzes` | Quiz metadata (title, passing score) |
+| `quiz_questions` | Questions with options, answers, points |
+| `quiz_attempts` | Student quiz submissions and results |
+
+### Gamification Tables
+
+| Table | Description |
+|-------|-------------|
+| `badges` | Available achievement badges |
+| `user_badges` | Badges earned by users |
+| `user_gamification` | XP and level tracking per user |
+| `user_streaks` | Daily activity streak tracking |
+
+### Kit & Commerce Tables
+
+| Table | Description |
+|-------|-------------|
+| `study_kits` | Available study kits with pricing |
+| `kit_orders` | Student kit purchase orders |
+| `transactions` | Financial records (income/expenses) |
+
+### System Tables
+
+| Table | Description |
+|-------|-------------|
+| `events` | Calendar events (system-wide or course-specific) |
+| `course_prerequisites` | Course prerequisite relationships |
 
 ---
 
-## Local Setup Instructions
+## 🚀 Installation & Local Development
 
 ### Prerequisites
-- Node.js 18+ installed
-- npm or bun package manager
 
-### Steps
+- **Node.js 18+** – [Download](https://nodejs.org/)
+- **npm** or **bun** – Package manager
+- **Git** – Version control
+
+### Setup Steps
 
 1. **Clone the repository**
    ```bash
-   git clone <YOUR_GIT_URL>
-   cd <YOUR_PROJECT_NAME>
+   git clone https://github.com/your-username/brighterbee-lms.git
+   cd brighterbee-lms
    ```
 
 2. **Install dependencies**
    ```bash
    npm install
+   # or
+   bun install
    ```
 
-3. **Configure environment variables**
-   - Create a `.env` file with your Supabase credentials (see above)
+3. **Create environment file**
+   ```bash
+   cp .env.example .env
+   ```
 
-4. **Run the development server**
+4. **Configure environment variables** (see below)
+
+5. **Start development server**
    ```bash
    npm run dev
+   # or
+   bun dev
    ```
 
-5. **Open in browser**
-   - Navigate to `http://localhost:5173`
+6. **Open in browser**
+   ```
+   http://localhost:5173
+   ```
 
 ---
 
-## Deployment Notes
+## 🔐 Environment Variables
 
-- **Frontend-only application** – all backend logic is handled by Supabase
-- **Compatible with:**
-  - Vercel
-  - Render
-  - Netlify
-  - Any static hosting platform
-- **Supabase** serves as the external backend (authentication, database, RLS)
-- **No server-side backend required** – the app is fully client-side
+Create a `.env` file in the project root:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+VITE_SUPABASE_PROJECT_ID=your-project-id
+```
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_SUPABASE_URL` | Your Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public anon key for client-side access |
+| `VITE_SUPABASE_PROJECT_ID` | Supabase project identifier |
+
+> **Note:** When using Lovable Cloud, these are automatically configured.
+
+---
+
+## 🔄 Database Migrations
+
+### Running Migrations
+
+Migrations are managed through the Supabase dashboard or Lovable Cloud interface.
+
+```bash
+# Migrations are located in:
+supabase/migrations/
+```
+
+### RLS Policies
+
+All tables have Row Level Security (RLS) policies pre-configured:
+
+- Users can only access their own data
+- Teachers can access their courses and enrolled students
+- Admins have full access to all data
+- Quiz answers are verified server-side via secure RPC functions
+
+---
+
+## 🌐 Production Deployment
 
 ### Deploy to Vercel
 
+1. **Connect GitHub repository**
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "New Project"
+   - Import your GitHub repository
+
+2. **Configure environment variables**
+   - Add all variables from your `.env` file
+   - Vercel automatically handles the build
+
+3. **Deploy**
+   - Vercel auto-deploys on every push to `main`
+
+4. **Custom domain (optional)**
+   - Add your custom domain in Vercel settings
+
+### Build Command
+
 ```bash
 npm run build
-# Deploy the `dist` folder to Vercel
+```
+
+Output is generated in the `dist/` folder.
+
+---
+
+## 📂 Git Workflow
+
+### Repository Strategy
+
+| Repository | Purpose |
+|------------|---------|
+| **Private Repo** | Development work |
+| **Public Repo** | Production deployment (Vercel) |
+
+### Sync Commands
+
+Mirror changes from development to production:
+
+```bash
+# From your project directory
+git fetch origin
+git reset --hard origin/main
+git push production main --force-with-lease
+```
+
+### Branch Strategy
+
+- `main` – Production-ready code
+- `develop` – Active development (if used)
+- Feature branches for new features
+
+---
+
+## 📸 Screenshots
+
+### Landing Page
+![Landing Page](screenshots/landing.png)
+*Bee-themed landing page with feature highlights*
+
+### Student Dashboard
+![Student Dashboard](screenshots/student-dashboard.png)
+*Gamified student dashboard with XP and streaks*
+
+### Teacher Dashboard
+![Teacher Dashboard](screenshots/teacher-dashboard.png)
+*Course and student management interface*
+
+### Admin Panel
+![Admin Panel](screenshots/admin-dashboard.png)
+*Full administrative control panel*
+
+### Kit Ordering
+![Kit Ordering](screenshots/kit-ordering.png)
+*Study kit catalog with recommendations*
+
+> **Note:** Add actual screenshots to the `screenshots/` folder.
+
+---
+
+## ⚠️ Disclaimer
+
+This project is a **personal portfolio project** created for resume/demonstration purposes.
+
+- ❌ No real users or student data
+- ❌ No real payment processing
+- ❌ Kit ordering uses dummy/simulated payments
+- ❌ Not intended for production use with real students
+- ✅ Demonstrates full-stack development skills
+- ✅ Showcases modern web development practices
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+```
+MIT License
+
+Copyright (c) 2024 BrighterBee LMS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ```
 
 ---
 
-## Security Notes
+## 👨‍💻 Author
 
-- **Role-based access** is enforced at the database level using RLS policies
-- User roles are stored in a dedicated `user_roles` table (not in profiles)
-- All sensitive operations are protected by RLS policies
-- Quiz answers are verified server-side using secure RPC functions
-- Console errors are suppressed in production builds
-- **One-time admin bootstrapping** – first admin must be manually assigned
+Built with ❤️ using [Lovable](https://lovable.dev)
 
-### RLS Policies Applied On:
-- `profiles`
-- `user_roles`
-- `courses`
-- `lessons`
-- `lesson_progress`
-- `enrollments`
-- `quizzes`
-- `quiz_questions`
-- `quiz_attempts`
-- `badges`
-- `user_badges`
-- `user_gamification`
-- `user_streaks`
-- `events`
-- `transactions`
+**BrighterBee** – *Education is a Life Shaper* 🐝
 
 ---
 
-## Database Schema
+## 🙏 Acknowledgements
 
-### Core Tables
-- `profiles` – User profile information
-- `user_roles` – Role assignments (admin, teacher, student)
-- `courses` – Course content by grade level
-- `lessons` – Lessons within courses
-- `enrollments` – Student course enrollments
-- `quizzes` – Quizzes linked to courses
-- `quiz_questions` – Questions for each quiz
-- `quiz_attempts` – Student quiz submissions
-
-### Gamification Tables
-- `badges` – Available achievement badges
-- `user_badges` – Earned badges per user
-- `user_gamification` – XP and level tracking
-- `user_streaks` – Daily activity streaks
-
-### System Tables
-- `events` – Calendar events
-- `transactions` – Financial records
-
----
-
-## License
-
-This project is created for **personal/portfolio purposes**.
-
-MIT License – Feel free to use and modify for your own projects.
-
----
-
-## Author
-
-Created with ❤️ using [Lovable](https://lovable.dev)
-
-*Education is a Life Shaper* 🐝
+- [Lovable](https://lovable.dev) – AI-powered development platform
+- [Supabase](https://supabase.com) – Backend infrastructure
+- [shadcn/ui](https://ui.shadcn.com) – UI components
+- [Tailwind CSS](https://tailwindcss.com) – Styling framework
+- [Lucide](https://lucide.dev) – Icons
