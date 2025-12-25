@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { Search, Loader2, UserCog, Trash2 } from 'lucide-react';
 
 interface UserWithRole {
@@ -24,6 +25,7 @@ export default function AdminUsers() {
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
   const [deletingUser, setDeletingUser] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     fetchUsers();
@@ -100,34 +102,56 @@ export default function AdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = async (userId: string, userName: string | null) => {
+    // Prevent deleting own account
+    if (userId === currentUser?.id) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot Delete',
+        description: 'You cannot delete your own admin account.',
+      });
+      return;
+    }
+
     setDeletingUser(userId);
     try {
-      // Delete user data in order (respecting foreign keys)
-      await supabase.from('enrollments').delete().eq('student_id', userId);
-      await supabase.from('lesson_progress').delete().eq('student_id', userId);
-      await supabase.from('quiz_attempts').delete().eq('student_id', userId);
-      await supabase.from('assignment_submissions').delete().eq('student_id', userId);
-      await supabase.from('user_badges').delete().eq('user_id', userId);
-      await supabase.from('user_gamification').delete().eq('user_id', userId);
-      await supabase.from('user_streaks').delete().eq('user_id', userId);
-      await supabase.from('user_roles').delete().eq('user_id', userId);
-      const { error } = await supabase.from('profiles').delete().eq('id', userId);
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData.session) {
+        throw new Error('No active session');
+      }
 
-      if (error) throw error;
+      const response = await supabase.functions.invoke('delete-user', {
+        body: { userId },
+      });
 
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to delete user');
+      }
+
+      const result = response.data;
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      // Remove user from local state
       setUsers((prev) => prev.filter((user) => user.id !== userId));
 
       toast({
         title: 'User Deleted',
-        description: 'User account has been removed',
+        description: `${userName || 'User'} has been permanently removed.`,
       });
-    } catch (error) {
+
+      // Re-fetch to ensure UI is in sync with database
+      await fetchUsers();
+
+    } catch (error: any) {
       console.error('Error deleting user:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to delete user. The user may have created content that needs to be removed first.',
+        description: error.message || 'Failed to delete user. Please try again.',
       });
     } finally {
       setDeletingUser(null);
@@ -265,7 +289,7 @@ export default function AdminUsers() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDeleteUser(user.id)}
+                                  onClick={() => handleDeleteUser(user.id, user.full_name)}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
                                   Delete User
