@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Edit, FileText, GripVertical, Loader2, Plus, Trash2, Users, FileQuestion, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, GripVertical, Loader2, Plus, Trash2, Users, FileQuestion, BarChart3, ClipboardList } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type Course = Database['public']['Tables']['courses']['Row'];
@@ -343,6 +343,27 @@ export default function CourseDetail() {
                 <Link to={`/teacher/courses/${id}/results`}>
                   <BarChart3 className="mr-2 h-4 w-4" />
                   View Results
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Assignments Management */}
+        <div className="ml-14 sm:ml-0">
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ClipboardList className="h-5 w-5 text-primary" />
+                Assignments
+              </CardTitle>
+              <CardDescription>Create and manage assignments for this course</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild>
+                <Link to={`/teacher/courses/${id}/assignments`}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Manage Assignments
                 </Link>
               </Button>
             </CardContent>

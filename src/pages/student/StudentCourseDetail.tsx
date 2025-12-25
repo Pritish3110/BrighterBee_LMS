@@ -9,8 +9,10 @@ import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { XPAnimation } from '@/components/XPAnimation';
-import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play, FileQuestion, Award, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Circle, ExternalLink, Loader2, Play, FileQuestion, Award, Sparkles, ClipboardList, Calendar } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { format, isPast } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 
 type Course = Database['public']['Tables']['courses']['Row'];
 type Lesson = Database['public']['Tables']['lessons']['Row'] & {
@@ -18,6 +20,13 @@ type Lesson = Database['public']['Tables']['lessons']['Row'] & {
   xp_awarded: boolean;
 };
 type Quiz = Database['public']['Tables']['quizzes']['Row'];
+type Assignment = {
+  id: string;
+  title: string;
+  description: string | null;
+  due_date: string;
+  has_submitted: boolean;
+};
 
 export default function StudentCourseDetail() {
   const { id } = useParams();
@@ -30,6 +39,7 @@ export default function StudentCourseDetail() {
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [markingComplete, setMarkingComplete] = useState<string | null>(null);
   
   // XP Animation state
@@ -114,6 +124,32 @@ export default function StudentCourseDetail() {
         .order('created_at', { ascending: true });
 
       setQuizzes(quizzesData || []);
+
+      // Fetch assignments for this course
+      const { data: assignmentsData } = await supabase
+        .from('assignments')
+        .select('*')
+        .eq('course_id', id!)
+        .order('due_date', { ascending: true });
+
+      // Check which assignments have submissions
+      const assignmentsWithStatus = await Promise.all(
+        (assignmentsData || []).map(async (assignment) => {
+          const { data: submission } = await supabase
+            .from('assignment_submissions')
+            .select('id')
+            .eq('assignment_id', assignment.id)
+            .eq('student_id', user!.id)
+            .maybeSingle();
+
+          return {
+            ...assignment,
+            has_submitted: !!submission,
+          };
+        })
+      );
+
+      setAssignments(assignmentsWithStatus);
     } catch (error) {
       console.error('Error fetching course:', error);
       toast({
@@ -424,6 +460,51 @@ export default function StudentCourseDetail() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Assignments Section */}
+        {assignments.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <ClipboardList className="h-5 w-5" />
+              Assignments
+            </h2>
+            <div className="space-y-3">
+              {assignments.map((assignment) => {
+                const isOverdue = isPast(new Date(assignment.due_date));
+                return (
+                  <Card key={assignment.id} className={`hover:shadow-md transition-shadow ${assignment.has_submitted ? 'bg-green-50 border-green-200' : ''}`}>
+                    <CardContent className="flex items-center gap-4 p-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{assignment.title}</h4>
+                          {assignment.has_submitted ? (
+                            <Badge className="bg-green-100 text-green-800">Submitted</Badge>
+                          ) : isOverdue ? (
+                            <Badge variant="destructive">Past Due</Badge>
+                          ) : (
+                            <Badge variant="secondary">Open</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {assignment.description || 'No description'}
+                        </p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                          <Calendar className="h-4 w-4" />
+                          Due: {format(new Date(assignment.due_date), 'MMM d, yyyy h:mm a')}
+                        </p>
+                      </div>
+                      <Button asChild variant={assignment.has_submitted ? 'outline' : 'default'}>
+                        <Link to={`/student/assignments/${assignment.id}`}>
+                          {assignment.has_submitted ? 'View Submission' : 'Submit'}
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         )}

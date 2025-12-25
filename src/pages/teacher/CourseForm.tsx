@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +22,11 @@ interface CourseFormData {
   description: string;
   grade_level: GradeLevel;
   is_published: boolean;
+}
+
+interface AvailableCourse {
+  id: string;
+  title: string;
 }
 
 export default function CourseForm() {
@@ -38,12 +44,27 @@ export default function CourseForm() {
     grade_level: 'nursery',
     is_published: false,
   });
+  const [availableCourses, setAvailableCourses] = useState<AvailableCourse[]>([]);
+  const [selectedPrerequisites, setSelectedPrerequisites] = useState<string[]>([]);
 
   useEffect(() => {
+    fetchAvailableCourses();
     if (isEditing && id) {
       fetchCourse(id);
     }
   }, [id, isEditing]);
+
+  const fetchAvailableCourses = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('courses')
+      .select('id, title')
+      .eq('is_published', true)
+      .neq('id', id || '')
+      .order('title');
+
+    setAvailableCourses(data || []);
+  };
 
   const fetchCourse = async (courseId: string) => {
     setLoading(true);
@@ -63,6 +84,14 @@ export default function CourseForm() {
           grade_level: data.grade_level,
           is_published: data.is_published,
         });
+
+        // Fetch existing prerequisites
+        const { data: prereqs } = await supabase
+          .from('course_prerequisites')
+          .select('prerequisite_course_id')
+          .eq('course_id', courseId);
+
+        setSelectedPrerequisites((prereqs || []).map((p) => p.prerequisite_course_id));
       } else {
         toast({
           title: 'Course not found',
@@ -83,6 +112,12 @@ export default function CourseForm() {
     }
   };
 
+  const handlePrerequisiteToggle = (courseId: string) => {
+    setSelectedPrerequisites((prev) =>
+      prev.includes(courseId) ? prev.filter((cid) => cid !== courseId) : [...prev, courseId]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -97,6 +132,8 @@ export default function CourseForm() {
 
     setSaving(true);
     try {
+      let courseId = id;
+
       if (isEditing && id) {
         const { error } = await supabase
           .from('courses')
@@ -109,12 +146,6 @@ export default function CourseForm() {
           .eq('id', id);
 
         if (error) throw error;
-        
-        toast({
-          title: 'Course updated',
-          description: 'Your course has been updated successfully.',
-        });
-        navigate(`/teacher/courses/${id}`);
       } else {
         const { data, error } = await supabase
           .from('courses')
@@ -129,13 +160,34 @@ export default function CourseForm() {
           .single();
 
         if (error) throw error;
-        
-        toast({
-          title: 'Course created',
-          description: 'Your new course has been created successfully.',
-        });
-        navigate(`/teacher/courses/${data.id}`);
+        courseId = data.id;
       }
+
+      // Update prerequisites
+      if (courseId) {
+        // Delete existing prerequisites
+        await supabase.from('course_prerequisites').delete().eq('course_id', courseId);
+
+        // Insert new prerequisites
+        if (selectedPrerequisites.length > 0) {
+          const prereqInserts = selectedPrerequisites.map((prereqId) => ({
+            course_id: courseId!,
+            prerequisite_course_id: prereqId,
+          }));
+
+          const { error: prereqError } = await supabase
+            .from('course_prerequisites')
+            .insert(prereqInserts);
+
+          if (prereqError) console.error('Error saving prerequisites:', prereqError);
+        }
+      }
+
+      toast({
+        title: isEditing ? 'Course updated' : 'Course created',
+        description: `Your course has been ${isEditing ? 'updated' : 'created'} successfully.`,
+      });
+      navigate(`/teacher/courses/${courseId}`);
     } catch (error: any) {
       console.error('Error saving course:', error);
       toast({
@@ -225,6 +277,33 @@ export default function CourseForm() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Prerequisites */}
+              {availableCourses.length > 0 && (
+                <div className="space-y-3">
+                  <Label>Prerequisites (optional)</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Students must complete these courses before enrolling
+                  </p>
+                  <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto">
+                    {availableCourses.map((course) => (
+                      <div key={course.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`prereq-${course.id}`}
+                          checked={selectedPrerequisites.includes(course.id)}
+                          onCheckedChange={() => handlePrerequisiteToggle(course.id)}
+                        />
+                        <label
+                          htmlFor={`prereq-${course.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {course.title}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
