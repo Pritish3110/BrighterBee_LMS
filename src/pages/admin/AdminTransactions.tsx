@@ -74,7 +74,7 @@ export default function AdminTransactions() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('kit_orders')
-        .select('price, status, order_date');
+        .select('id, price, status, order_date, kit_name, student_name');
       
       if (error) throw error;
       return data || [];
@@ -150,8 +150,17 @@ export default function AdminTransactions() {
     });
   };
 
-  // Calculate statistics
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+  // Kit orders revenue
+  const kitOrdersRevenue = kitOrders.reduce((sum, o) => sum + Number(o.price), 0);
+  const thisMonthKitOrders = kitOrders.filter(o => {
+    const date = parseISO(o.order_date);
+    return date >= startOfMonth(new Date()) && date <= endOfMonth(new Date());
+  });
+  const thisMonthKitRevenue = thisMonthKitOrders.reduce((sum, o) => sum + Number(o.price), 0);
+
+  // Calculate statistics (including kit orders as income)
+  const transactionIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+  const totalIncome = transactionIncome + kitOrdersRevenue;
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
   const netBalance = totalIncome - totalExpense;
 
@@ -162,10 +171,11 @@ export default function AdminTransactions() {
     const date = parseISO(t.transaction_date);
     return date >= thisMonthStart && date <= thisMonthEnd;
   });
-  const thisMonthIncome = thisMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+  const thisMonthTransactionIncome = thisMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+  const thisMonthIncome = thisMonthTransactionIncome + thisMonthKitRevenue;
   const thisMonthExpense = thisMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
 
-  // Monthly chart data (last 6 months)
+  // Monthly chart data (last 6 months) - including kit orders
   const monthlyData = Array.from({ length: 6 }, (_, i) => {
     const monthDate = subMonths(new Date(), 5 - i);
     const monthStart = startOfMonth(monthDate);
@@ -174,30 +184,70 @@ export default function AdminTransactions() {
       const date = parseISO(t.transaction_date);
       return date >= monthStart && date <= monthEnd;
     });
+    const monthKitOrders = kitOrders.filter(o => {
+      const date = parseISO(o.order_date);
+      return date >= monthStart && date <= monthEnd;
+    });
+    const transactionIncomeMonth = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+    const kitIncomeMonth = monthKitOrders.reduce((sum, o) => sum + Number(o.price), 0);
     return {
       month: format(monthDate, 'MMM'),
-      income: monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0),
+      income: transactionIncomeMonth + kitIncomeMonth,
       expense: monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0),
+      kitSales: kitIncomeMonth,
     };
   });
 
-  // Category breakdown for pie chart
-  const categoryData = INCOME_CATEGORIES.map(cat => ({
-    name: cat,
-    value: transactions.filter(t => t.type === 'income' && t.category === cat).reduce((sum, t) => sum + Number(t.amount), 0),
-  })).filter(d => d.value > 0);
+  // Category breakdown for pie chart (including kit sales)
+  const categoryData = [
+    ...INCOME_CATEGORIES.map(cat => ({
+      name: cat,
+      value: transactions.filter(t => t.type === 'income' && t.category === cat).reduce((sum, t) => sum + Number(t.amount), 0),
+    })),
+    { name: 'Kit Sales', value: kitOrdersRevenue },
+  ].filter(d => d.value > 0);
+
+  // Create combined transactions list (transactions + kit orders as income)
+  type CombinedTransaction = Transaction | {
+    id: string;
+    type: 'income';
+    category: string;
+    amount: number;
+    description: string;
+    transaction_date: string;
+    receipt_number: string | null;
+    payment_method: string | null;
+    isKitOrder: true;
+  };
+
+  const kitOrdersAsTransactions: CombinedTransaction[] = kitOrders.map(o => ({
+    id: o.id || `kit-${Math.random()}`,
+    type: 'income' as const,
+    category: 'Kit Sales',
+    amount: Number(o.price),
+    description: `Kit Order: ${o.kit_name} - ${o.student_name}`,
+    transaction_date: o.order_date.split('T')[0],
+    receipt_number: null,
+    payment_method: 'Pending',
+    isKitOrder: true as const,
+  }));
+
+  const allTransactions: CombinedTransaction[] = [
+    ...transactions,
+    ...kitOrdersAsTransactions,
+  ].sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
 
   // Filtered transactions
-  const filteredTransactions = transactions.filter(t => {
+  const filteredTransactions = allTransactions.filter(t => {
     const matchesSearch = searchTerm === '' || 
       t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.receipt_number?.toLowerCase().includes(searchTerm.toLowerCase());
+      ('receipt_number' in t && t.receipt_number?.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesType = filterType === 'all' || t.type === filterType;
     return matchesSearch && matchesType;
   });
 
-  // Export to CSV
+  // Export to CSV (including kit orders)
   const exportToCSV = () => {
     const headers = ['Date', 'Type', 'Category', 'Amount', 'Description', 'Receipt #', 'Payment Method'];
     const rows = filteredTransactions.map(t => [
@@ -206,8 +256,8 @@ export default function AdminTransactions() {
       t.category,
       t.amount,
       t.description || '',
-      t.receipt_number || '',
-      t.payment_method || '',
+      ('receipt_number' in t ? t.receipt_number : '') || '',
+      ('payment_method' in t ? t.payment_method : '') || '',
     ]);
     
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
