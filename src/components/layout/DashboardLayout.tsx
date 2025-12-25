@@ -83,7 +83,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       return [
         ...baseItems,
         { label: 'My Courses', href: '/teacher/courses', icon: BookOpen },
-        { label: 'Quiz Results', href: '/teacher/results', icon: FileQuestion },
+        { label: 'Assignments', href: '/teacher/assignments', icon: FileQuestion },
+        { label: 'Quiz Results', href: '/teacher/results', icon: Award },
         { label: 'Calendar', href: '/teacher/calendar', icon: Calendar },
       ];
     }
@@ -93,6 +94,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       ...baseItems,
       { label: 'My Courses', href: '/student/courses', icon: BookOpen },
       { label: 'Browse Courses', href: '/student/browse', icon: GraduationCap },
+      { label: 'Calendar', href: '/student/calendar', icon: Calendar },
       { label: 'Leaderboard', href: '/student/leaderboard', icon: Trophy },
       { label: 'Badges', href: '/student/badges', icon: Award },
     ];

@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Loader2, UserCog } from 'lucide-react';
+import { Search, Loader2, UserCog, Trash2 } from 'lucide-react';
 
 interface UserWithRole {
   id: string;
@@ -21,6 +22,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,7 +38,6 @@ export default function AdminUsers() {
 
       if (profilesError) throw profilesError;
 
-      // Get roles for all users
       const usersWithRoles = await Promise.all(
         (profiles || []).map(async (profile) => {
           const { data: roleData } = await supabase
@@ -54,9 +55,7 @@ export default function AdminUsers() {
 
       setUsers(usersWithRoles);
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error fetching users:', error);
-      }
+      console.error('Error fetching users:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -70,7 +69,6 @@ export default function AdminUsers() {
   const handleRoleChange = async (userId: string, newRole: 'admin' | 'teacher' | 'student') => {
     setUpdatingRole(userId);
     try {
-      // SECURITY FIX: Use upsert instead of delete+insert to avoid race condition
       const { error } = await supabase
         .from('user_roles')
         .upsert(
@@ -80,7 +78,6 @@ export default function AdminUsers() {
 
       if (error) throw error;
 
-      // Update local state
       setUsers((prev) =>
         prev.map((user) =>
           user.id === userId ? { ...user, role: newRole } : user
@@ -92,9 +89,7 @@ export default function AdminUsers() {
         description: `User role has been changed to ${newRole}`,
       });
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error updating role:', error);
-      }
+      console.error('Error updating role:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -102,6 +97,40 @@ export default function AdminUsers() {
       });
     } finally {
       setUpdatingRole(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingUser(userId);
+    try {
+      // Delete user data in order (respecting foreign keys)
+      await supabase.from('enrollments').delete().eq('student_id', userId);
+      await supabase.from('lesson_progress').delete().eq('student_id', userId);
+      await supabase.from('quiz_attempts').delete().eq('student_id', userId);
+      await supabase.from('assignment_submissions').delete().eq('student_id', userId);
+      await supabase.from('user_badges').delete().eq('user_id', userId);
+      await supabase.from('user_gamification').delete().eq('user_id', userId);
+      await supabase.from('user_streaks').delete().eq('user_id', userId);
+      await supabase.from('user_roles').delete().eq('user_id', userId);
+      const { error } = await supabase.from('profiles').delete().eq('id', userId);
+
+      if (error) throw error;
+
+      setUsers((prev) => prev.filter((user) => user.id !== userId));
+
+      toast({
+        title: 'User Deleted',
+        description: 'User account has been removed',
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete user. The user may have created content that needs to be removed first.',
+      });
+    } finally {
+      setDeletingUser(null);
     }
   };
 
@@ -132,7 +161,6 @@ export default function AdminUsers() {
           </div>
         </div>
 
-        {/* Search */}
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -143,7 +171,6 @@ export default function AdminUsers() {
           />
         </div>
 
-        {/* Users Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -169,6 +196,7 @@ export default function AdminUsers() {
                       <th className="text-left py-3 px-4 font-medium">Joined</th>
                       <th className="text-left py-3 px-4 font-medium">Current Role</th>
                       <th className="text-left py-3 px-4 font-medium">Change Role</th>
+                      <th className="text-left py-3 px-4 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -211,6 +239,40 @@ export default function AdminUsers() {
                               <SelectItem value="admin">Admin</SelectItem>
                             </SelectContent>
                           </Select>
+                        </td>
+                        <td className="py-4 px-4">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={deletingUser === user.id}
+                              >
+                                {deletingUser === user.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                )}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete User Account</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete {user.full_name || 'this user'}? This will remove all their data including enrollments, progress, and submissions. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete User
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </td>
                       </tr>
                     ))}
