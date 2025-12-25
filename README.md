@@ -1,6 +1,5 @@
 # 🐝 BrighterBee LMS
 
-[![Built with Lovable](https://img.shields.io/badge/Built%20with-Lovable-FFD700?style=flat-square)](https://lovable.dev)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
@@ -110,7 +109,7 @@
 |----------|---------|
 | **Vercel** | Production hosting |
 | **GitHub** | Version control |
-| **Lovable Cloud** | Backend infrastructure |
+| **Supabase** | Backend infrastructure |
 
 ---
 
@@ -224,15 +223,13 @@ VITE_SUPABASE_PROJECT_ID=your-project-id
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Public anon key for client-side access |
 | `VITE_SUPABASE_PROJECT_ID` | Supabase project identifier |
 
-> **Note:** When using Lovable Cloud, these are automatically configured.
-
 ---
 
 ## 🔄 Database Migrations
 
 ### Running Migrations
 
-Migrations are managed through the Supabase dashboard or Lovable Cloud interface.
+Migrations are managed through the Supabase dashboard.
 
 ```bash
 # Migrations are located in:
@@ -374,15 +371,12 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 ## 👨‍💻 Author
 
-Built with ❤️ using [Lovable](https://lovable.dev)
-
 **BrighterBee** – *Education is a Life Shaper* 🐝
 
 ---
 
 ## 🙏 Acknowledgements
 
-- [Lovable](https://lovable.dev) – AI-powered development platform
 - [Supabase](https://supabase.com) – Backend infrastructure
 - [shadcn/ui](https://ui.shadcn.com) – UI components
 - [Tailwind CSS](https://tailwindcss.com) – Styling framework
