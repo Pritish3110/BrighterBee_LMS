@@ -22,6 +22,9 @@ import Leaderboard from "./pages/student/Leaderboard";
 import StudentCalendar from "./pages/student/StudentCalendar";
 import StudentAssignmentDetail from "./pages/student/StudentAssignmentDetail";
 import StudentProfile from "./pages/student/Profile";
+import StudentKits from "./pages/student/Kits";
+import KitDetail from "./pages/student/KitDetail";
+import StudentOrders from "./pages/student/Orders";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherCourses from "./pages/teacher/TeacherCourses";
 import CourseForm from "./pages/teacher/CourseForm";
@@ -42,6 +45,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminCalendar from "./pages/admin/AdminCalendar";
 import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminStudyKits from "./pages/admin/AdminStudyKits";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -120,6 +124,21 @@ const App = () => (
             <Route path="/student/profile" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/kits" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentKits />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/kits/:id" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <KitDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/orders" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentOrders />
               </ProtectedRoute>
             } />
             
@@ -229,6 +248,11 @@ const App = () => (
             <Route path="/admin/transactions" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminTransactions />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/study-kits" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminStudyKits />
               </ProtectedRoute>
             } />
             
