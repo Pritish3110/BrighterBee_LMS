@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 import brighterBeeLogo from "@/assets/brighter-bee-logo.jpg";
 
@@ -26,6 +26,9 @@ export default function Auth() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
   
   const { user, signIn, signUp, loading } = useAuth();
   const navigate = useNavigate();
@@ -106,6 +109,37 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    const emailValid = validateField('resetEmail', resetEmail, emailSchema);
+    if (!emailValid) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) throw error;
+
+      setResetSent(true);
+      toast({
+        title: 'Reset Email Sent',
+        description: 'Check your email for a password reset link.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to send reset email.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background honeycomb-pattern">
@@ -114,12 +148,97 @@ export default function Auth() {
     );
   }
 
+  // Forgot Password View
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background honeycomb-pattern p-4">
+        <div className="w-full max-w-md">
+          {/* Logo - Static */}
+          <div className="flex flex-col items-center mb-8">
+            <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-40 w-auto mb-4 drop-shadow-lg" />
+            <p className="text-muted-foreground mt-1">Learning Management System</p>
+          </div>
+
+          <Card className="border-2 border-primary/20 shadow-xl">
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-xl">Reset Password</CardTitle>
+              <CardDescription>
+                {resetSent 
+                  ? 'Check your email for a reset link'
+                  : 'Enter your email to receive a password reset link'
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {resetSent ? (
+                <div className="text-center space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    We've sent a password reset link to <strong>{resetEmail}</strong>.
+                    Please check your inbox and follow the instructions.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetSent(false);
+                      setResetEmail('');
+                    }}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Sign In
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    {errors.resetEmail && (
+                      <p className="text-sm text-destructive">{errors.resetEmail}</p>
+                    )}
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Reset Link'
+                    )}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    className="w-full"
+                    onClick={() => setShowForgotPassword(false)}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Sign In
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background honeycomb-pattern p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
+        {/* Logo - Static (no animation) */}
         <div className="flex flex-col items-center mb-8">
-          <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-40 w-auto mb-4 animate-float drop-shadow-[0_0_25px_rgba(251,191,36,0.4)]" />
+          <img src={brighterBeeLogo} alt="BrighterBee Logo" className="h-40 w-auto mb-4 drop-shadow-lg" />
           <p className="text-muted-foreground mt-1">Learning Management System</p>
         </div>
 
@@ -174,6 +293,14 @@ export default function Auth() {
                     ) : (
                       'Sign In'
                     )}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="link" 
+                    className="w-full text-sm"
+                    onClick={() => setShowForgotPassword(true)}
+                  >
+                    Forgot Password?
                   </Button>
                 </form>
               </TabsContent>

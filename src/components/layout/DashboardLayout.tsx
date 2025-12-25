@@ -14,7 +14,8 @@ import {
   FileQuestion,
   Trophy,
   Calendar,
-  Wallet
+  Wallet,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import brighterBeeLogo from "@/assets/brighter-bee-logo.jpg";
@@ -86,6 +87,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         { label: 'Assignments', href: '/teacher/assignments', icon: FileQuestion },
         { label: 'Quiz Results', href: '/teacher/results', icon: Award },
         { label: 'Calendar', href: '/teacher/calendar', icon: Calendar },
+        { label: 'My Profile', href: '/teacher/profile', icon: User },
       ];
     }
 
@@ -97,6 +99,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       { label: 'Calendar', href: '/student/calendar', icon: Calendar },
       { label: 'Leaderboard', href: '/student/leaderboard', icon: Trophy },
       { label: 'Badges', href: '/student/badges', icon: Award },
+      { label: 'My Profile', href: '/student/profile', icon: User },
     ];
   };
 

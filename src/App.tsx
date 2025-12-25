@@ -20,6 +20,7 @@ import Badges from "./pages/student/Badges";
 import Leaderboard from "./pages/student/Leaderboard";
 import StudentCalendar from "./pages/student/StudentCalendar";
 import StudentAssignmentDetail from "./pages/student/StudentAssignmentDetail";
+import StudentProfile from "./pages/student/Profile";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherCourses from "./pages/teacher/TeacherCourses";
 import CourseForm from "./pages/teacher/CourseForm";
@@ -33,6 +34,7 @@ import TeacherCalendar from "./pages/teacher/TeacherCalendar";
 import TeacherAssignments from "./pages/teacher/TeacherAssignments";
 import CourseAssignments from "./pages/teacher/CourseAssignments";
 import AssignmentSubmissions from "./pages/teacher/AssignmentSubmissions";
+import TeacherProfile from "./pages/teacher/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -113,6 +115,11 @@ const App = () => (
                 <StudentAssignmentDetail />
               </ProtectedRoute>
             } />
+            <Route path="/student/profile" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentProfile />
+              </ProtectedRoute>
+            } />
             
             {/* Teacher Routes */}
             <Route path="/teacher" element={
@@ -183,6 +190,11 @@ const App = () => (
             <Route path="/teacher/assignments/:id/submissions" element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <AssignmentSubmissions />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/profile" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherProfile />
               </ProtectedRoute>
             } />
             
