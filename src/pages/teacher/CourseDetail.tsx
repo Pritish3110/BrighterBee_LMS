@@ -11,8 +11,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Edit, FileText, GripVertical, Loader2, Plus, Trash2, Users, FileQuestion, BarChart3, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, GripVertical, Loader2, Plus, Trash2, Users, FileQuestion, BarChart3, ClipboardList, FileIcon } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { FileDropzone } from '@/components/FileDropzone';
 
 type Course = Database['public']['Tables']['courses']['Row'];
 type Lesson = Database['public']['Tables']['lessons']['Row'];
@@ -43,6 +44,11 @@ export default function CourseDetail() {
   });
   const [savingLesson, setSavingLesson] = useState(false);
   const [deletingCourse, setDeletingCourse] = useState(false);
+
+  // File upload state
+  const [lessonFile, setLessonFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [existingResourceUrl, setExistingResourceUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -116,11 +122,34 @@ export default function CourseDetail() {
         description: lesson.description || '',
         resource_url: lesson.resource_url || '',
       });
+      setExistingResourceUrl(lesson.resource_url || null);
     } else {
       setEditingLesson(null);
       setLessonForm({ title: '', description: '', resource_url: '' });
+      setExistingResourceUrl(null);
     }
+    setLessonFile(null);
     setLessonDialogOpen(true);
+  };
+
+  const uploadFile = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `lessons/${id}/${Date.now()}.${fileExt}`;
+    
+    const { error } = await supabase.storage
+      .from('assignments')
+      .upload(fileName, file);
+
+    if (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('assignments')
+      .getPublicUrl(fileName);
+
+    return urlData.publicUrl;
   };
 
   const handleSaveLesson = async () => {
@@ -134,14 +163,23 @@ export default function CourseDetail() {
     }
 
     setSavingLesson(true);
+    setUploadingFile(!!lessonFile);
+
     try {
+      let resourceUrl = lessonForm.resource_url.trim() || null;
+      
+      // Upload file if selected (overrides manual URL)
+      if (lessonFile) {
+        resourceUrl = await uploadFile(lessonFile);
+      }
+
       if (editingLesson) {
         const { error } = await supabase
           .from('lessons')
           .update({
             title: lessonForm.title.trim(),
             description: lessonForm.description.trim(),
-            resource_url: lessonForm.resource_url.trim() || null,
+            resource_url: resourceUrl,
           })
           .eq('id', editingLesson.id);
 
@@ -155,7 +193,7 @@ export default function CourseDetail() {
           .insert({
             title: lessonForm.title.trim(),
             description: lessonForm.description.trim(),
-            resource_url: lessonForm.resource_url.trim() || null,
+            resource_url: resourceUrl,
             course_id: id!,
             lesson_order: newOrder,
           });
@@ -176,6 +214,7 @@ export default function CourseDetail() {
       });
     } finally {
       setSavingLesson(false);
+      setUploadingFile(false);
     }
   };
 
@@ -221,6 +260,15 @@ export default function CourseDetail() {
       });
     } finally {
       setDeletingCourse(false);
+    }
+  };
+
+  const getFileName = (url: string) => {
+    try {
+      const parts = url.split('/');
+      return parts[parts.length - 1] || 'Attached file';
+    } catch {
+      return 'Attached file';
     }
   };
 
@@ -381,7 +429,7 @@ export default function CourseDetail() {
                   Add Lesson
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>
                     {editingLesson ? 'Edit Lesson' : 'Add New Lesson'}
@@ -413,13 +461,57 @@ export default function CourseDetail() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label>Resource Attachment</Label>
+                    <FileDropzone
+                      onFileSelect={(file) => {
+                        setLessonFile(file);
+                        if (file) {
+                          setLessonForm({ ...lessonForm, resource_url: '' });
+                        }
+                      }}
+                      accept={{
+                        'application/pdf': ['.pdf'],
+                        'application/msword': ['.doc'],
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+                        'application/vnd.ms-powerpoint': ['.ppt'],
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+                        'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
+                        'video/*': ['.mp4', '.webm', '.mov'],
+                        'audio/*': ['.mp3', '.wav', '.m4a'],
+                      }}
+                      maxSize={50 * 1024 * 1024}
+                      uploading={uploadingFile}
+                      currentFile={
+                        lessonFile 
+                          ? { name: lessonFile.name } 
+                          : existingResourceUrl 
+                            ? { name: getFileName(existingResourceUrl), url: existingResourceUrl } 
+                            : undefined
+                      }
+                      onRemove={() => {
+                        setLessonFile(null);
+                        setExistingResourceUrl(null);
+                        setLessonForm({ ...lessonForm, resource_url: '' });
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Or enter a URL manually below
+                    </p>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="resourceUrl">Resource URL (optional)</Label>
                     <Input
                       id="resourceUrl"
                       type="url"
                       value={lessonForm.resource_url}
-                      onChange={(e) => setLessonForm({ ...lessonForm, resource_url: e.target.value })}
+                      onChange={(e) => {
+                        setLessonForm({ ...lessonForm, resource_url: e.target.value });
+                        if (e.target.value) {
+                          setLessonFile(null);
+                        }
+                      }}
                       placeholder="https://example.com/video"
+                      disabled={!!lessonFile}
                     />
                   </div>
                 </div>
@@ -431,7 +523,7 @@ export default function CourseDetail() {
                     {savingLesson ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        {uploadingFile ? 'Uploading...' : 'Saving...'}
                       </>
                     ) : (
                       editingLesson ? 'Update Lesson' : 'Add Lesson'
@@ -472,6 +564,17 @@ export default function CourseDetail() {
                       <p className="text-sm text-muted-foreground truncate">
                         {lesson.description || 'No description'}
                       </p>
+                      {lesson.resource_url && (
+                        <a 
+                          href={lesson.resource_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                        >
+                          <FileIcon className="h-3 w-3" />
+                          {getFileName(lesson.resource_url)}
+                        </a>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button
