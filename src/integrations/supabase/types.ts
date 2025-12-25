@@ -378,23 +378,50 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          branch: string | null
+          city: string | null
+          course_level: string | null
+          courses_taught: string | null
           created_at: string
           full_name: string | null
+          grade: string | null
           id: string
+          phone_number: string | null
+          pincode: string | null
+          profile_completed: boolean | null
+          state: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          branch?: string | null
+          city?: string | null
+          course_level?: string | null
+          courses_taught?: string | null
           created_at?: string
           full_name?: string | null
+          grade?: string | null
           id: string
+          phone_number?: string | null
+          pincode?: string | null
+          profile_completed?: boolean | null
+          state?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          branch?: string | null
+          city?: string | null
+          course_level?: string | null
+          courses_taught?: string | null
           created_at?: string
           full_name?: string | null
+          grade?: string | null
           id?: string
+          phone_number?: string | null
+          pincode?: string | null
+          profile_completed?: boolean | null
+          state?: string | null
           updated_at?: string
         }
         Relationships: []
