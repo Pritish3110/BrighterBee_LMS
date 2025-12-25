@@ -5,17 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, GraduationCap, Search, Loader2, CheckCircle, Lock } from 'lucide-react';
+import { BookOpen, GraduationCap, Search, Loader2, CheckCircle, Lock, ExternalLink } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Course = Database['public']['Tables']['courses']['Row'] & {
   lessonCount: number;
   isEnrolled: boolean;
-  prerequisites: { id: string; title: string; isCompleted: boolean }[];
+  prerequisites: { id: string; title: string; isCompleted: boolean; isEnrolled: boolean }[];
   canEnroll: boolean;
 };
 
@@ -99,6 +100,7 @@ export default function BrowseCourses() {
                 id: prereq.prerequisite_course_id,
                 title: prereqCourse?.title || 'Unknown Course',
                 isCompleted: completedCourseIds.has(prereq.prerequisite_course_id),
+                isEnrolled: enrolledCourseIds.has(prereq.prerequisite_course_id),
               };
             })
           );
@@ -245,88 +247,139 @@ export default function BrowseCourses() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCourses.map((course) => (
-              <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-32 bg-honey-gradient flex items-center justify-center">
-                  {course.thumbnail_url ? (
-                    <img 
-                      src={course.thumbnail_url} 
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <BookOpen className="h-12 w-12 text-primary-foreground/60" />
-                  )}
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${getGradeBadgeColor(course.grade_level)}`}>
-                      {formatGradeLevel(course.grade_level)}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {course.lessonCount} lessons
-                    </span>
+            {filteredCourses.map((course) => {
+              const completedCount = course.prerequisites.filter(p => p.isCompleted).length;
+              const totalPrereqs = course.prerequisites.length;
+              const progressPercent = totalPrereqs > 0 ? (completedCount / totalPrereqs) * 100 : 100;
+
+              return (
+                <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="h-32 bg-honey-gradient flex items-center justify-center">
+                    {course.thumbnail_url ? (
+                      <img 
+                        src={course.thumbnail_url} 
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <BookOpen className="h-12 w-12 text-primary-foreground/60" />
+                    )}
                   </div>
-                  <CardTitle className="text-lg line-clamp-1">{course.title}</CardTitle>
-                  <CardDescription className="line-clamp-2">
-                    {course.description || 'No description'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {course.prerequisites.length > 0 && !course.isEnrolled && (
-                    <div className="text-xs text-muted-foreground mb-2">
-                      <span className="font-medium">Prerequisites: </span>
-                      {course.prerequisites.map((prereq, idx) => (
-                        <span key={prereq.id}>
-                          <span className={prereq.isCompleted ? 'text-green-600' : 'text-destructive'}>
-                            {prereq.title}
-                            {prereq.isCompleted ? ' ✓' : ' ✗'}
-                          </span>
-                          {idx < course.prerequisites.length - 1 && ', '}
-                        </span>
-                      ))}
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${getGradeBadgeColor(course.grade_level)}`}>
+                        {formatGradeLevel(course.grade_level)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {course.lessonCount} lessons
+                      </span>
                     </div>
-                  )}
-                  {course.isEnrolled ? (
-                    <Button asChild className="w-full" variant="outline">
-                      <Link to={`/student/courses/${course.id}`}>
-                        <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
-                        Continue Learning
-                      </Link>
-                    </Button>
-                  ) : !course.canEnroll ? (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button className="w-full" variant="secondary" disabled>
-                            <Lock className="mr-2 h-4 w-4" />
-                            Prerequisites Required
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Complete the prerequisite courses before enrolling.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <Button 
-                      className="w-full"
-                      onClick={() => handleEnroll(course.id)}
-                      disabled={enrollingId === course.id}
-                    >
-                      {enrollingId === course.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Enrolling...
-                        </>
-                      ) : (
-                        'Enroll Now'
-                      )}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    <CardTitle className="text-lg line-clamp-1">{course.title}</CardTitle>
+                    <CardDescription className="line-clamp-2">
+                      {course.description || 'No description'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {/* Prerequisites section with progress */}
+                    {course.prerequisites.length > 0 && !course.isEnrolled && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-muted-foreground">Prerequisites</span>
+                          <span className={completedCount === totalPrereqs ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
+                            {completedCount}/{totalPrereqs} completed
+                          </span>
+                        </div>
+                        <Progress 
+                          value={progressPercent} 
+                          className="h-2"
+                        />
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {course.prerequisites.map((prereq) => (
+                            <TooltipProvider key={prereq.id}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  {prereq.isEnrolled ? (
+                                    <Link
+                                      to={`/student/courses/${prereq.id}`}
+                                      className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
+                                        prereq.isCompleted 
+                                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                                          : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                      }`}
+                                    >
+                                      {prereq.title}
+                                      {prereq.isCompleted ? (
+                                        <CheckCircle className="h-3 w-3" />
+                                      ) : (
+                                        <ExternalLink className="h-3 w-3" />
+                                      )}
+                                    </Link>
+                                  ) : (
+                                    <span
+                                      className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-destructive/10 text-destructive cursor-default"
+                                    >
+                                      {prereq.title}
+                                      <Lock className="h-3 w-3" />
+                                    </span>
+                                  )}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {prereq.isCompleted 
+                                    ? 'Completed! Click to review' 
+                                    : prereq.isEnrolled 
+                                      ? 'In progress - click to continue'
+                                      : 'Enroll in this course first'
+                                  }
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Enrollment button */}
+                    {course.isEnrolled ? (
+                      <Button asChild className="w-full" variant="outline">
+                        <Link to={`/student/courses/${course.id}`}>
+                          <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
+                          Continue Learning
+                        </Link>
+                      </Button>
+                    ) : !course.canEnroll ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button className="w-full" variant="secondary" disabled>
+                              <Lock className="mr-2 h-4 w-4" />
+                              Prerequisites Required
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Complete the prerequisite courses before enrolling.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <Button 
+                        className="w-full"
+                        onClick={() => handleEnroll(course.id)}
+                        disabled={enrollingId === course.id}
+                      >
+                        {enrollingId === course.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enrolling...
+                          </>
+                        ) : (
+                          'Enroll Now'
+                        )}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
