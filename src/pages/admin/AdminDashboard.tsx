@@ -29,6 +29,11 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
+      // Get total users count from profiles table (includes all users)
+      const { count: totalUsersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
       // Get user role counts
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
@@ -38,6 +43,7 @@ export default function AdminDashboard() {
 
       const students = roles?.filter((r) => r.role === 'student').length || 0;
       const teachers = roles?.filter((r) => r.role === 'teacher').length || 0;
+      const admins = roles?.filter((r) => r.role === 'admin').length || 0;
 
       // Get course count
       const { count: coursesCount } = await supabase
@@ -69,8 +75,9 @@ export default function AdminDashboard() {
 
       setRecentUsers(recentWithRoles);
 
+      // Total users = all profiles (students + teachers + admins + users without roles)
       setStats({
-        totalUsers: roles?.length || 0,
+        totalUsers: totalUsersCount || 0,
         totalCourses: coursesCount || 0,
         totalStudents: students,
         totalTeachers: teachers,
