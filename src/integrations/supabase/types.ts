@@ -299,6 +299,80 @@ export type Database = {
           },
         ]
       }
+      kit_orders: {
+        Row: {
+          address: string | null
+          bee_level: string | null
+          branch: string | null
+          city: string | null
+          created_at: string
+          email: string
+          grade: string | null
+          id: string
+          kit_id: string
+          kit_name: string
+          order_date: string
+          phone: string | null
+          pincode: string | null
+          price: number
+          state: string | null
+          status: string
+          student_id: string
+          student_name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          bee_level?: string | null
+          branch?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          grade?: string | null
+          id?: string
+          kit_id: string
+          kit_name: string
+          order_date?: string
+          phone?: string | null
+          pincode?: string | null
+          price: number
+          state?: string | null
+          status?: string
+          student_id: string
+          student_name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          bee_level?: string | null
+          branch?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          grade?: string | null
+          id?: string
+          kit_id?: string
+          kit_name?: string
+          order_date?: string
+          phone?: string | null
+          pincode?: string | null
+          price?: number
+          state?: string | null
+          status?: string
+          student_id?: string
+          student_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kit_orders_kit_id_fkey"
+            columns: ["kit_id"]
+            isOneToOne: false
+            referencedRelation: "study_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_progress: {
         Row: {
           completed: boolean
@@ -548,6 +622,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      study_kits: {
+        Row: {
+          branch_availability: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          is_enabled: boolean
+          name: string
+          price: number
+          recommended_grade: string | null
+          recommended_level: string | null
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          branch_availability?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          name: string
+          price?: number
+          recommended_grade?: string | null
+          recommended_level?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          branch_availability?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          name?: string
+          price?: number
+          recommended_grade?: string | null
+          recommended_level?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       transactions: {
         Row: {

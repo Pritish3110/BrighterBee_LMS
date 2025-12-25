@@ -40,6 +40,8 @@ export default function StudentAssignmentDetail() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (assignmentId && user) fetchData();
@@ -74,18 +76,22 @@ export default function StudentAssignmentDetail() {
     }
   };
 
-  const handleFileSelect = async (file: File) => {
-    if (!assignment || !user) return;
+  const handleFileSelect = (file: File) => {
+    setPendingFile(file);
+  };
 
-    setUploading(true);
+  const handleSubmitAssignment = async () => {
+    if (!assignment || !user || !pendingFile) return;
+
+    setSubmitting(true);
     try {
       const isLate = isPast(new Date(assignment.due_date));
-      const filePath = `${user.id}/${assignmentId}/${Date.now()}_${file.name}`;
+      const filePath = `${user.id}/${assignmentId}/${Date.now()}_${pendingFile.name}`;
 
       // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from('assignments')
-        .upload(filePath, file);
+        .upload(filePath, pendingFile);
 
       if (uploadError) throw uploadError;
 
@@ -99,7 +105,7 @@ export default function StudentAssignmentDetail() {
         assignment_id: assignmentId!,
         student_id: user.id,
         file_url: urlData.publicUrl,
-        file_name: file.name,
+        file_name: pendingFile.name,
         submitted_at: new Date().toISOString(),
         is_late: isLate,
       };
@@ -124,12 +130,13 @@ export default function StudentAssignmentDetail() {
         description: isLate ? 'Your submission was recorded as late.' : 'Your work has been submitted successfully.',
       });
 
+      setPendingFile(null);
       fetchData();
     } catch (error: any) {
       console.error('Error uploading:', error);
       toast({ title: 'Error submitting assignment', description: error.message, variant: 'destructive' });
     } finally {
-      setUploading(false);
+      setSubmitting(false);
     }
   };
 
@@ -243,15 +250,46 @@ export default function StudentAssignmentDetail() {
           <CardContent>
             <FileDropzone
               onFileSelect={handleFileSelect}
-              uploading={uploading}
+              uploading={submitting}
               currentFile={
-                submission?.file_name
+                pendingFile 
+                  ? { name: pendingFile.name }
+                  : submission?.file_name
                   ? { name: submission.file_name, url: submission.file_url || undefined }
                   : null
               }
-              onRemove={submission && !submission.grade ? handleRemoveSubmission : undefined}
+              onRemove={
+                pendingFile 
+                  ? () => setPendingFile(null)
+                  : submission && !submission.grade 
+                  ? handleRemoveSubmission 
+                  : undefined
+              }
               disabled={!!submission?.grade}
             />
+            
+            {/* Submit Button */}
+            {pendingFile && !submission?.grade && (
+              <Button 
+                onClick={handleSubmitAssignment} 
+                disabled={submitting}
+                className="w-full mt-4"
+                size="lg"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Submit Assignment
+                  </>
+                )}
+              </Button>
+            )}
+            
             {submission?.is_late && (
               <div className="flex items-center gap-2 mt-3 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4" />
