@@ -125,7 +125,7 @@ export default function StudentCalendar() {
           <p className="text-muted-foreground">View academic events and assignment due dates</p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Calendar */}
           <Card className="lg:col-span-2">
             <CardHeader>

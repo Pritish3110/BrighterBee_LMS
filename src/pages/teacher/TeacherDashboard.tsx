@@ -85,18 +85,18 @@ export default function TeacherDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               Teacher Dashboard 📚
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Manage your courses and track student progress
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/teacher/courses/new">
               <Plus className="mr-2 h-4 w-4" />
               Create Course
@@ -105,32 +105,32 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">My Courses</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">My Courses</CardTitle>
               <BookOpen className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalCourses}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stats.totalCourses}</div>
             </CardContent>
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Students</CardTitle>
               <Users className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalStudents}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stats.totalStudents}</div>
             </CardContent>
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Lessons</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Lessons</CardTitle>
               <FileText className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalLessons}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stats.totalLessons}</div>
             </CardContent>
           </Card>
         </div>
@@ -168,7 +168,7 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {courses.slice(0, 6).map((course) => (
                 <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <CardHeader>

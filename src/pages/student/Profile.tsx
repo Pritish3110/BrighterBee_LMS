@@ -183,7 +183,7 @@ export default function StudentProfile() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Non-editable fields */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Full Name</Label>
                 <Input value={profile?.full_name || ''} disabled className="bg-muted" />
@@ -209,7 +209,7 @@ export default function StudentProfile() {
 
             <div className="space-y-4">
               <h4 className="font-medium text-sm text-muted-foreground">Address</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city">City *</Label>
                   <Input
@@ -259,7 +259,7 @@ export default function StudentProfile() {
               {errors.branch && <p className="text-sm text-destructive">{errors.branch}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="grade">Standard / Grade *</Label>
                 <Select value={form.grade} onValueChange={(v) => setForm({ ...form, grade: v })}>

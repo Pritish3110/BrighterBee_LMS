@@ -126,18 +126,18 @@ export default function StudentDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               Welcome back! 🎉
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Ready to learn something new today?
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/student/browse">
               <GraduationCap className="mr-2 h-4 w-4" />
               Browse Courses
@@ -146,14 +146,14 @@ export default function StudentDashboard() {
         </div>
 
         {/* Gamification Stats */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Level</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Level</CardTitle>
               <Star className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{level}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{level}</div>
               <div className="mt-2">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>{xp} XP</span>
@@ -165,25 +165,25 @@ export default function StudentDashboard() {
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total XP</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Total XP</CardTitle>
               <Zap className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{xp}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{xp}</div>
             </CardContent>
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Badges</CardTitle>
               <Award className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{badges.length}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{badges.length}</div>
             </CardContent>
           </Card>
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Streak</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Streak</CardTitle>
               <Flame className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
@@ -251,7 +251,7 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {enrolledCourses.slice(0, 6).map((course) => (
                 <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="h-32 bg-honey-gradient flex items-center justify-center">
