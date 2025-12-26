@@ -166,17 +166,17 @@ export default function AdminUsers() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">User Management</h1>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               View and manage user roles
             </p>
           </div>
         </div>
 
-        <div className="relative max-w-sm">
+        <div className="relative w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search users..."
@@ -203,101 +203,181 @@ export default function AdminUsers() {
                 No users found
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium">User</th>
-                      <th className="text-left py-3 px-4 font-medium">Email</th>
-                      <th className="text-left py-3 px-4 font-medium">Joined</th>
-                      <th className="text-left py-3 px-4 font-medium">Current Role</th>
-                      <th className="text-left py-3 px-4 font-medium">Change Role</th>
-                      <th className="text-left py-3 px-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id} className="border-b last:border-0">
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold">
-                              {user.full_name?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                            <span className="font-medium">
-                              {user.full_name || 'Unnamed User'}
-                            </span>
+              <>
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-3">
+                  {filteredUsers.map((user) => (
+                    <div key={user.id} className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold shrink-0">
+                            {user.full_name?.[0]?.toUpperCase() || 'U'}
                           </div>
-                        </td>
-                        <td className="py-4 px-4 text-muted-foreground text-sm">
-                          {user.email || '—'}
-                        </td>
-                        <td className="py-4 px-4 text-muted-foreground">
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className={`text-xs px-2 py-1 rounded-full border capitalize ${getRoleBadgeColor(user.role)}`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <Select
-                            value={user.role}
-                            onValueChange={(value) => handleRoleChange(user.id, value as 'admin' | 'teacher' | 'student')}
-                            disabled={updatingRole === user.id}
-                          >
-                            <SelectTrigger className="w-32">
-                              {updatingRole === user.id ? (
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{user.full_name || 'Unnamed User'}</p>
+                            <p className="text-sm text-muted-foreground truncate">{user.email || '—'}</p>
+                          </div>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full border capitalize shrink-0 ${getRoleBadgeColor(user.role)}`}>
+                          {user.role}
+                        </span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Joined {new Date(user.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Select
+                          value={user.role}
+                          onValueChange={(value) => handleRoleChange(user.id, value as 'admin' | 'teacher' | 'student')}
+                          disabled={updatingRole === user.id}
+                        >
+                          <SelectTrigger className="flex-1">
+                            {updatingRole === user.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <SelectValue />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="student">Student</SelectItem>
+                            <SelectItem value="teacher">Teacher</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={deletingUser === user.id}
+                            >
+                              {deletingUser === user.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <SelectValue />
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               )}
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="student">Student</SelectItem>
-                              <SelectItem value="teacher">Teacher</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="py-4 px-4">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled={deletingUser === user.id}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete User Account</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete {user.full_name || 'this user'}? This will remove all their data. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(user.id, user.full_name)}
+                                className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                {deletingUser === user.id ? (
+                                Delete User
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-medium">User</th>
+                        <th className="text-left py-3 px-4 font-medium">Email</th>
+                        <th className="text-left py-3 px-4 font-medium">Joined</th>
+                        <th className="text-left py-3 px-4 font-medium">Current Role</th>
+                        <th className="text-left py-3 px-4 font-medium">Change Role</th>
+                        <th className="text-left py-3 px-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.map((user) => (
+                        <tr key={user.id} className="border-b last:border-0">
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold">
+                                {user.full_name?.[0]?.toUpperCase() || 'U'}
+                              </div>
+                              <span className="font-medium">
+                                {user.full_name || 'Unnamed User'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-muted-foreground text-sm">
+                            {user.email || '—'}
+                          </td>
+                          <td className="py-4 px-4 text-muted-foreground">
+                            {new Date(user.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className={`text-xs px-2 py-1 rounded-full border capitalize ${getRoleBadgeColor(user.role)}`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Select
+                              value={user.role}
+                              onValueChange={(value) => handleRoleChange(user.id, value as 'admin' | 'teacher' | 'student')}
+                              disabled={updatingRole === user.id}
+                            >
+                              <SelectTrigger className="w-32">
+                                {updatingRole === user.id ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                  <SelectValue />
                                 )}
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete User Account</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete {user.full_name || 'this user'}? This will remove all their data including enrollments, progress, and submissions. This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteUser(user.id, user.full_name)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="student">Student</SelectItem>
+                                <SelectItem value="teacher">Teacher</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="py-4 px-4">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={deletingUser === user.id}
                                 >
-                                  Delete User
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                                  {deletingUser === user.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  )}
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete User Account</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete {user.full_name || 'this user'}? This will remove all their data including enrollments, progress, and submissions. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteUser(user.id, user.full_name)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Delete User
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

@@ -102,18 +102,18 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               Admin Dashboard 🔧
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Manage users, courses, and system settings
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/admin/users">
               <UserCog className="mr-2 h-4 w-4" />
               Manage Users
@@ -127,14 +127,14 @@ export default function AdminDashboard() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
             <Card className="bg-honey-gradient-soft border-primary/20">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                 <Users className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stats.totalUsers}</div>
+                <div className="text-2xl sm:text-3xl font-bold">{stats.totalUsers}</div>
               </CardContent>
             </Card>
             <Card className="bg-honey-gradient-soft border-primary/20">
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
                 <GraduationCap className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stats.totalStudents}</div>
+                <div className="text-2xl sm:text-3xl font-bold">{stats.totalStudents}</div>
               </CardContent>
             </Card>
             <Card className="bg-honey-gradient-soft border-primary/20">
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
                 <UserCog className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stats.totalTeachers}</div>
+                <div className="text-2xl sm:text-3xl font-bold">{stats.totalTeachers}</div>
               </CardContent>
             </Card>
             <Card className="bg-honey-gradient-soft border-primary/20">
@@ -161,14 +161,14 @@ export default function AdminDashboard() {
                 <BookOpen className="h-4 w-4 text-secondary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stats.totalCourses}</div>
+                <div className="text-2xl sm:text-3xl font-bold">{stats.totalCourses}</div>
               </CardContent>
             </Card>
           </div>
         )}
 
         {/* Recent Users */}
-        <div>
+        <div className="overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Recent Users</h2>
             <Link 
@@ -183,19 +183,19 @@ export default function AdminDashboard() {
             <CardContent className="p-0">
               <div className="divide-y">
                 {recentUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold">
+                  <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-2 sm:gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-semibold shrink-0">
                         {user.full_name?.[0]?.toUpperCase() || 'U'}
                       </div>
-                      <div>
-                        <p className="font-medium">{user.full_name || 'Unnamed User'}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{user.full_name || 'Unnamed User'}</p>
                         <p className="text-sm text-muted-foreground">
                           Joined {new Date(user.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full capitalize ${getRoleBadgeColor(user.role)}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full capitalize self-start sm:self-center shrink-0 ${getRoleBadgeColor(user.role)}`}>
                       {user.role}
                     </span>
                   </div>
