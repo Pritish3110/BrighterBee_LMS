@@ -252,19 +252,19 @@ export default function AdminStudyKits() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Study Kits & Orders 📦</h1>
-          <p className="text-muted-foreground">Manage kits and view student orders</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Study Kits & Orders 📦</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage kits and view student orders</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
               <Package className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</div>
+              <div className="text-xl sm:text-2xl font-bold">₹{totalRevenue.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">From kit orders</p>
             </CardContent>
           </Card>
@@ -274,7 +274,7 @@ export default function AdminStudyKits() {
               <ShoppingCart className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalKitsSold}</div>
+              <div className="text-xl sm:text-2xl font-bold">{totalKitsSold}</div>
               <p className="text-xs text-muted-foreground">{deliveredOrders} delivered</p>
             </CardContent>
           </Card>
@@ -284,16 +284,16 @@ export default function AdminStudyKits() {
               <Package className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{kits.filter(k => k.is_enabled).length}</div>
+              <div className="text-xl sm:text-2xl font-bold">{kits.filter(k => k.is_enabled).length}</div>
               <p className="text-xs text-muted-foreground">of {kits.length} total</p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="kits">
-          <TabsList>
-            <TabsTrigger value="kits">Manage Kits</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="kits" className="flex-1 sm:flex-initial">Manage Kits</TabsTrigger>
+            <TabsTrigger value="orders" className="flex-1 sm:flex-initial">Orders</TabsTrigger>
           </TabsList>
 
           {/* Kits Tab */}

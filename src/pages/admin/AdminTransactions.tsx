@@ -274,27 +274,27 @@ export default function AdminTransactions() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Transactions</h1>
-            <p className="text-muted-foreground">Track income, expenses, and fees</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Transactions</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Track income, expenses, and fees</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={exportToCSV} className="gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={exportToCSV} className="gap-2 flex-1 sm:flex-initial">
               <Download className="h-4 w-4" />
-              Export CSV
+              <span className="hidden xs:inline">Export</span> CSV
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
               if (!open) resetForm();
             }}>
               <DialogTrigger asChild>
-                <Button className="gap-2">
+                <Button className="gap-2 flex-1 sm:flex-initial">
                   <Plus className="h-4 w-4" />
                   Add Transaction
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Record Transaction</DialogTitle>
                 </DialogHeader>
@@ -404,7 +404,7 @@ export default function AdminTransactions() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Income</CardTitle>

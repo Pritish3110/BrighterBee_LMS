@@ -125,40 +125,40 @@ export default function Leaderboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <Trophy className="h-8 w-8 text-primary" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+            <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             Leaderboard
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             See how you rank against other learners
           </p>
         </div>
 
         {/* Your Stats Card */}
         <Card className="bg-honey-gradient-soft border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-lg">Your Stats</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">Your Stats</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{xp}</div>
-                <div className="text-sm text-muted-foreground">Total XP</div>
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{xp}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Total XP</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-secondary">{level}</div>
-                <div className="text-sm text-muted-foreground">Level</div>
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary">{level}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Level</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-foreground">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
                   {userRank ? `#${userRank}` : '-'}
                 </div>
-                <div className="text-sm text-muted-foreground">Your Rank</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Your Rank</div>
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center col-span-2 sm:col-span-1">
                 <StreakDisplay 
                   currentStreak={streak.current_streak} 
                   longestStreak={streak.longest_streak}
@@ -196,36 +196,36 @@ export default function Leaderboard() {
                   return (
                     <div
                       key={entry.user_id}
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${getRankBg(entry.rank, isCurrentUser)}`}
+                      className={`flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border-2 transition-all ${getRankBg(entry.rank, isCurrentUser)}`}
                     >
                       {/* Rank */}
-                      <div className="w-12 flex justify-center">
+                      <div className="w-8 sm:w-12 flex justify-center shrink-0">
                         {getRankIcon(entry.rank)}
                       </div>
 
                       {/* Avatar */}
-                      <Avatar className="h-12 w-12 border-2 border-primary/20">
-                        <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                      <Avatar className="h-8 w-8 sm:h-12 sm:w-12 border-2 border-primary/20 shrink-0">
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs sm:text-base">
                           {getInitials(entry.full_name)}
                         </AvatarFallback>
                       </Avatar>
 
                       {/* Name */}
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold truncate flex items-center gap-2">
-                          {entry.full_name || 'Anonymous Bee'}
+                        <div className="font-semibold truncate flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                          <span className="truncate">{entry.full_name || 'Anonymous Bee'}</span>
                           {isCurrentUser && (
-                            <Badge variant="outline" className="text-xs">You</Badge>
+                            <Badge variant="outline" className="text-xs shrink-0">You</Badge>
                           )}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs sm:text-sm text-muted-foreground">
                           Level {entry.level}
                         </div>
                       </div>
 
                       {/* XP */}
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-primary">
+                      <div className="text-right shrink-0">
+                        <div className="text-base sm:text-xl font-bold text-primary">
                           {entry.xp.toLocaleString()}
                         </div>
                         <div className="text-xs text-muted-foreground">XP</div>

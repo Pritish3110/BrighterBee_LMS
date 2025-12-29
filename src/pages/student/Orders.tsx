@@ -67,15 +67,15 @@ export default function StudentOrders() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/student/kits')}>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/student/kits')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">My Orders 📋</h1>
-            <p className="text-muted-foreground">Track your study kit orders</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">My Orders 📋</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Track your study kit orders</p>
           </div>
         </div>
 
@@ -91,33 +91,33 @@ export default function StudentOrders() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {orders.map(order => {
               const statusConfig = STATUS_CONFIG[order.status] || STATUS_CONFIG.placed;
               
               return (
                 <Card key={order.id}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{order.kit_name}</CardTitle>
-                        <CardDescription>
+                  <CardHeader className="p-4 sm:pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="text-base sm:text-lg truncate">{order.kit_name}</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">
                           Ordered on {format(new Date(order.order_date), 'MMM d, yyyy h:mm a')}
                         </CardDescription>
                       </div>
-                      <Badge variant={statusConfig.variant} className="flex items-center gap-1">
+                      <Badge variant={statusConfig.variant} className="flex items-center gap-1 w-fit shrink-0">
                         {statusConfig.icon}
                         {statusConfig.label}
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-4 text-sm text-muted-foreground">
+                  <CardContent className="p-4 pt-0">
+                    <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
                         {order.branch && <span>Branch: {order.branch}</span>}
                         {order.grade && <span>Grade: {order.grade}</span>}
                       </div>
-                      <span className="text-xl font-bold text-primary">₹{order.price}</span>
+                      <span className="text-lg sm:text-xl font-bold text-primary">₹{order.price}</span>
                     </div>
                     
                     {/* Order Progress */}

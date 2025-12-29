@@ -201,26 +201,26 @@ export default function AdminCalendar() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Admin Calendar</h1>
-            <p className="text-muted-foreground">View all events and manage system-wide announcements</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Admin Calendar</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">View all events and manage system-wide announcements</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3">
             <div className="flex items-center gap-2">
               <Switch
                 id="filter-system"
                 checked={filterSystemWide}
                 onCheckedChange={setFilterSystemWide}
               />
-              <Label htmlFor="filter-system">System-wide only</Label>
+              <Label htmlFor="filter-system" className="text-sm">System-wide</Label>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
               if (!open) resetForm();
             }}>
               <DialogTrigger asChild>
-                <Button className="gap-2">
+                <Button className="gap-2 w-full xs:w-auto">
                   <Plus className="h-4 w-4" />
                   Add Event
                 </Button>
@@ -342,21 +342,21 @@ export default function AdminCalendar() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Calendar */}
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <CalendarIcon className="h-5 w-5" />
                 {selectedDate ? format(selectedDate, 'MMMM yyyy') : 'Calendar'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-2 sm:p-6">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="pointer-events-auto w-full"
+                className="pointer-events-auto w-full mx-auto"
                 modifiers={{
                   hasEvent: eventDates,
                 }}
