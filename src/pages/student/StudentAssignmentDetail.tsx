@@ -183,37 +183,37 @@ export default function StudentAssignmentDetail() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <div className="flex items-start gap-3 sm:gap-4">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{assignment.title}</h1>
-            <p className="text-muted-foreground">{assignment.course.title}</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold break-words">{assignment.title}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{assignment.course.title}</p>
           </div>
         </div>
 
         {/* Assignment Details */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Due: {format(new Date(assignment.due_date), 'MMM d, yyyy h:mm a')}
+          <CardHeader className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                <span className="break-words">Due: {format(new Date(assignment.due_date), 'MMM d, yyyy h:mm a')}</span>
               </CardTitle>
-              <Badge variant={isOverdue ? 'destructive' : 'secondary'}>
+              <Badge variant={isOverdue ? 'destructive' : 'secondary'} className="w-fit">
                 {isOverdue ? 'Past Due' : 'Open'}
               </Badge>
             </div>
             {assignment.lesson && (
-              <CardDescription>Related lesson: {assignment.lesson.title}</CardDescription>
+              <CardDescription className="mt-2">Related lesson: {assignment.lesson.title}</CardDescription>
             )}
           </CardHeader>
           {assignment.description && (
-            <CardContent>
-              <p className="text-muted-foreground">{assignment.description}</p>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <p className="text-sm sm:text-base text-muted-foreground">{assignment.description}</p>
             </CardContent>
           )}
         </Card>

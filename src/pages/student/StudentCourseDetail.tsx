@@ -306,39 +306,39 @@ export default function StudentCourseDetail() {
         onComplete={() => setShowXPAnimation(false)}
       />
       
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="flex items-start gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/student/courses')}>
+        <div className="flex items-start gap-3 sm:gap-4">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/student/courses')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
               {formatGradeLevel(course.grade_level)}
             </span>
-            <h1 className="text-3xl font-bold text-foreground mt-2">{course.title}</h1>
-            <p className="text-muted-foreground mt-1">{course.description || 'No description'}</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mt-2 break-words">{course.title}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1 line-clamp-2">{course.description || 'No description'}</p>
           </div>
         </div>
 
         {/* Progress Card */}
         <Card className="bg-honey-gradient-soft border-primary/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
-                <h3 className="font-semibold text-lg">Your Progress</h3>
-                <p className="text-muted-foreground text-sm">
+                <h3 className="font-semibold text-base sm:text-lg">Your Progress</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   {completedCount} of {lessons.length} lessons completed
                 </p>
               </div>
-              <div className="text-3xl font-bold text-primary">
+              <div className="text-2xl sm:text-3xl font-bold text-primary">
                 {progressPercent}%
               </div>
             </div>
-            <Progress value={progressPercent} className="h-3" />
+            <Progress value={progressPercent} className="h-2 sm:h-3" />
             {progressPercent === 100 && (
               <div className="text-center mt-4">
-                <p className="text-primary font-medium mb-2">
+                <p className="text-primary font-medium mb-2 text-sm sm:text-base">
                   🎉 Congratulations! You've completed this course!
                 </p>
                 <Button asChild size="sm">
@@ -373,17 +373,25 @@ export default function StudentCourseDetail() {
                   key={lesson.id} 
                   className={`transition-all ${lesson.completed ? 'bg-green-50 border-green-200' : 'hover:shadow-md'}`}
                 >
-                  <CardContent className="flex items-center gap-4 p-4">
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4">
                     <div className="flex items-center gap-3">
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                      <span className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium shrink-0 ${
                         lesson.completed 
                           ? 'bg-green-500 text-white' 
                           : 'bg-primary/10 text-primary'
                       }`}>
-                        {lesson.completed ? <CheckCircle className="h-5 w-5" /> : index + 1}
+                        {lesson.completed ? <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" /> : index + 1}
                       </span>
+                      <div className="flex-1 min-w-0 sm:hidden">
+                        <h4 className={`font-medium text-sm ${lesson.completed ? 'line-through text-muted-foreground' : ''}`}>
+                          {lesson.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {lesson.description || 'No description'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 hidden sm:block">
                       <h4 className={`font-medium ${lesson.completed ? 'line-through text-muted-foreground' : ''}`}>
                         {lesson.title}
                       </h4>
@@ -391,11 +399,12 @@ export default function StudentCourseDetail() {
                         {lesson.description || 'No description'}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 ml-10 sm:ml-0">
                       {lesson.resource_url && (
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-8 w-8"
                           asChild
                         >
                           <a href={lesson.resource_url} target="_blank" rel="noopener noreferrer">
@@ -408,18 +417,19 @@ export default function StudentCourseDetail() {
                         size="sm"
                         onClick={() => toggleLessonComplete(lesson.id, lesson.completed)}
                         disabled={markingComplete === lesson.id}
+                        className="text-xs sm:text-sm"
                       >
                         {markingComplete === lesson.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : lesson.completed ? (
                           <>
-                            <Circle className="mr-1 h-4 w-4" />
-                            Undo
+                            <Circle className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="hidden xs:inline">Undo</span>
                           </>
                         ) : (
                           <>
-                            <CheckCircle className="mr-1 h-4 w-4" />
-                            Complete
+                            <CheckCircle className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="hidden xs:inline">Complete</span>
                           </>
                         )}
                       </Button>
@@ -434,23 +444,23 @@ export default function StudentCourseDetail() {
         {/* Quizzes Section */}
         {quizzes.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 flex items-center gap-2">
               <FileQuestion className="h-5 w-5" />
               Quizzes
             </h2>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2">
               {quizzes.map((quiz) => (
                 <Card key={quiz.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{quiz.title}</CardTitle>
-                    <CardDescription>{quiz.description || 'Test your knowledge!'}</CardDescription>
+                  <CardHeader className="p-4 sm:pb-2">
+                    <CardTitle className="text-base sm:text-lg">{quiz.title}</CardTitle>
+                    <CardDescription className="text-sm">{quiz.description || 'Test your knowledge!'}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
+                  <CardContent className="p-4 pt-0 sm:pt-0">
+                    <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
                       <span className="text-sm text-muted-foreground">
                         Passing score: {quiz.passing_score}%
                       </span>
-                      <Button asChild>
+                      <Button asChild size="sm" className="w-full xs:w-auto">
                         <Link to={`/student/quiz/${quiz.id}`}>
                           <Play className="mr-2 h-4 w-4" />
                           Take Quiz

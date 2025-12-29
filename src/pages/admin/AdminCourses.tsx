@@ -110,24 +110,24 @@ export default function AdminCourses() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">All Courses</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">All Courses</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             View all courses published by teachers
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{courses.length}</div>
+              <div className="text-xl sm:text-2xl font-bold">{courses.length}</div>
             </CardContent>
           </Card>
           <Card>
@@ -136,7 +136,7 @@ export default function AdminCourses() {
               <CheckCircle className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold">
                 {courses.filter(c => c.is_published).length}
               </div>
             </CardContent>
@@ -147,7 +147,7 @@ export default function AdminCourses() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold">
                 {courses.reduce((sum, c) => sum + c.enrollment_count, 0)}
               </div>
             </CardContent>
@@ -173,67 +173,99 @@ export default function AdminCourses() {
                 All courses created by teachers in the system
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Course Title</TableHead>
-                    <TableHead>Teacher</TableHead>
-                    <TableHead>Grade Level</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-center">Enrollments</TableHead>
-                    <TableHead>Created</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {courses.map((course) => (
-                    <TableRow key={course.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{course.title}</p>
-                          {course.description && (
-                            <p className="text-sm text-muted-foreground truncate max-w-xs">
-                              {course.description}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-muted-foreground">
-                          {course.teacher_name}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {formatGradeLevel(course.grade_level)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {course.is_published ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Published
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            <XCircle className="h-3 w-3 mr-1" />
-                            Draft
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          {course.enrollment_count}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {format(new Date(course.created_at), 'MMM d, yyyy')}
-                      </TableCell>
+            <CardContent className="p-0 sm:p-6">
+              {/* Desktop Table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Course Title</TableHead>
+                      <TableHead>Teacher</TableHead>
+                      <TableHead>Grade Level</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-center">Enrollments</TableHead>
+                      <TableHead>Created</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {courses.map((course) => (
+                      <TableRow key={course.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{course.title}</p>
+                            {course.description && (
+                              <p className="text-sm text-muted-foreground truncate max-w-xs">
+                                {course.description}
+                              </p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-muted-foreground">
+                            {course.teacher_name}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {formatGradeLevel(course.grade_level)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {course.is_published ? (
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Published
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Draft
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            {course.enrollment_count}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {format(new Date(course.created_at), 'MMM d, yyyy')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden divide-y divide-border">
+                {courses.map((course) => (
+                  <div key={course.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{course.title}</p>
+                        <p className="text-sm text-muted-foreground">{course.teacher_name}</p>
+                      </div>
+                      {course.is_published ? (
+                        <Badge className="bg-green-100 text-green-800 shrink-0">Published</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="shrink-0">Draft</Badge>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      <Badge variant="outline">{formatGradeLevel(course.grade_level)}</Badge>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Users className="h-3 w-3" />
+                        {course.enrollment_count} students
+                      </span>
+                      <span className="text-muted-foreground">
+                        {format(new Date(course.created_at), 'MMM d, yyyy')}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
