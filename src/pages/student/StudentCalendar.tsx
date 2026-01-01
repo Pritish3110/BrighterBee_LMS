@@ -5,10 +5,11 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { format, isSameDay, parseISO, isFuture } from 'date-fns';
-import { Calendar as CalendarIcon, Clock, ClipboardList, BookOpen } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, ClipboardList, BookOpen, ExternalLink } from 'lucide-react';
 
 interface Event {
   id: string;
@@ -173,8 +174,8 @@ export default function StudentCalendar() {
                       className="p-3 rounded-lg border bg-card"
                       style={{ borderLeftColor: getEventTypeColor(event.event_type), borderLeftWidth: 4 }}
                     >
-                      <div className="space-y-1">
-                        <h4 className="font-medium">{event.title}</h4>
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-sm">{event.title}</h4>
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="secondary" className="text-xs">
                             {EVENT_TYPES.find((t) => t.value === event.event_type)?.label}
@@ -191,7 +192,14 @@ export default function StudentCalendar() {
                           </p>
                         )}
                         {event.description && (
-                          <p className="text-sm text-muted-foreground mt-2">{event.description}</p>
+                          <p className="text-sm text-muted-foreground">{event.description}</p>
+                        )}
+                        {event.is_assignment && (
+                          <Button asChild size="sm" variant="outline" className="w-full mt-2">
+                            <Link to={`/student/assignments/${event.id}`}>
+                              View Assignment
+                            </Link>
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -218,15 +226,20 @@ export default function StudentCalendar() {
                 {upcomingAssignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow cursor-pointer"
+                    className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
                     style={{ borderLeftColor: getEventTypeColor('assignment'), borderLeftWidth: 4 }}
-                    onClick={() => setSelectedDate(parseISO(assignment.start_date))}
                   >
                     <h4 className="font-medium truncate">{assignment.title}</h4>
-                    <p className="text-sm text-muted-foreground">{assignment.course_title}</p>
+                    <p className="text-sm text-muted-foreground truncate">{assignment.course_title}</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Due: {format(parseISO(assignment.start_date), 'MMM d, yyyy h:mm a')}
                     </p>
+                    <Button asChild size="sm" variant="outline" className="w-full mt-3">
+                      <Link to={`/student/assignments/${assignment.id}`}>
+                        View Assignment
+                        <ExternalLink className="ml-1 h-3 w-3" />
+                      </Link>
+                    </Button>
                   </div>
                 ))}
               </div>

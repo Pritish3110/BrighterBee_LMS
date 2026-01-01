@@ -107,6 +107,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       ...baseItems,
       { label: 'My Courses', href: '/student/courses', icon: BookOpen },
       { label: 'Browse Courses', href: '/student/browse', icon: GraduationCap },
+      { label: 'Assignments', href: '/student/assignments', icon: FileQuestion },
       { label: 'Study Kits', href: '/student/kits', icon: Package },
       { label: 'Calendar', href: '/student/calendar', icon: Calendar },
       { label: 'Leaderboard', href: '/student/leaderboard', icon: Trophy },
