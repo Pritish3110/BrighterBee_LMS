@@ -216,17 +216,17 @@ export default function QuizManager() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(`/teacher/courses/${courseId}`)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground">Quiz Manager</h1>
-            <p className="text-muted-foreground mt-1">{course?.title}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Quiz Manager</h1>
+            <p className="text-muted-foreground mt-1 truncate">{course?.title}</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => openDialog()}>
+              <Button onClick={() => openDialog()} className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Quiz
               </Button>
@@ -328,18 +328,18 @@ export default function QuizManager() {
                   <div className="text-sm text-muted-foreground mb-4">
                     Passing score: {quiz.passing_score}%
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button asChild variant="outline" className="flex-1">
                       <Link to={`/teacher/courses/${courseId}/quizzes/${quiz.id}`}>
                         Manage Questions
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => openDialog(quiz)}>
+                    <Button variant="ghost" size="icon" onClick={() => openDialog(quiz)} className="shrink-0">
                       <Edit className="h-4 w-4" />
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="shrink-0">
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </AlertDialogTrigger>

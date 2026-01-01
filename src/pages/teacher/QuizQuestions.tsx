@@ -243,17 +243,17 @@ export default function QuizQuestions() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-start gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/teacher/courses/${courseId}/quizzes`)}>
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/teacher/courses/${courseId}/quizzes`)} className="shrink-0 self-start">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground">Quiz Questions</h1>
-            <p className="text-muted-foreground mt-1">{quiz?.title}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Quiz Questions</h1>
+            <p className="text-muted-foreground mt-1 truncate">{quiz?.title}</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => openDialog()}>
+              <Button onClick={() => openDialog()} className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Question
               </Button>

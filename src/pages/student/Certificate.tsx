@@ -156,12 +156,12 @@ export default function Certificate() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate(`/student/courses/${courseId}`)}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <Button variant="ghost" onClick={() => navigate(`/student/courses/${courseId}`)} className="self-start">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Course
           </Button>
-          <Button variant="outline" onClick={() => window.print()}>
+          <Button variant="outline" onClick={() => window.print()} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Print Certificate
           </Button>
@@ -171,8 +171,8 @@ export default function Certificate() {
         <Card className="certificate-container overflow-hidden">
           <CardContent className="p-0">
             <div 
-              className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-12 text-center relative overflow-hidden print:p-16"
-              style={{ minHeight: '600px' }}
+              className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6 sm:p-12 text-center relative overflow-hidden print:p-16"
+              style={{ minHeight: '500px' }}
             >
               {/* Decorative Border */}
               <div className="absolute inset-4 border-4 border-primary/20 rounded-lg" />
@@ -199,7 +199,7 @@ export default function Certificate() {
                 {/* Recipient */}
                 <div className="space-y-2 py-6">
                   <p className="text-muted-foreground">This certifies that</p>
-                  <h1 className="text-4xl font-bold text-foreground font-serif">
+                  <h1 className="text-2xl sm:text-4xl font-bold text-foreground font-serif">
                     {certificateData.studentName}
                   </h1>
                 </div>
@@ -216,7 +216,7 @@ export default function Certificate() {
                 <Award className="h-16 w-16 text-primary/50 my-4" />
 
                 {/* Date & Signature */}
-                <div className="grid grid-cols-2 gap-16 pt-8 w-full max-w-md">
+                <div className="grid grid-cols-2 gap-8 sm:gap-16 pt-8 w-full max-w-md">
                   <div className="text-center">
                     <div className="border-t border-foreground/30 pt-2">
                       <p className="text-sm font-medium">{certificateData.completedAt}</p>

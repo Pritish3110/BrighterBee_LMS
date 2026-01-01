@@ -183,16 +183,16 @@ export default function AdminAnalytics() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               Platform Analytics 📊
             </h1>
             <p className="text-muted-foreground mt-1">
-              View user progress and gamification stats across the platform
+              View user progress and gamification stats
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/admin/users">
               <Users className="mr-2 h-4 w-4" />
               Manage Users
@@ -201,7 +201,7 @@ export default function AdminAnalytics() {
         </div>
 
         {/* Platform Stats */}
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
           <Card className="bg-honey-gradient-soft border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total XP</CardTitle>
@@ -293,7 +293,8 @@ export default function AdminAnalytics() {
 
           <Card>
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b bg-muted/50">
@@ -375,6 +376,53 @@ export default function AdminAnalytics() {
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="md:hidden divide-y">
+                {users.map((user, index) => (
+                  <div key={user.id} className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shrink-0 ${
+                        index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                        index === 1 ? 'bg-gray-100 text-gray-800' :
+                        index === 2 ? 'bg-orange-100 text-orange-800' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{user.full_name || 'Unnamed User'}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${getRoleBadgeColor(user.role)}`}>
+                          {user.role}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 text-sm">
+                      <div className="text-center">
+                        <p className="text-muted-foreground text-xs">Level</p>
+                        <p className="font-semibold">{user.level}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-muted-foreground text-xs">XP</p>
+                        <p className="font-semibold">{user.xp}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-muted-foreground text-xs">Badges</p>
+                        <p className="font-semibold">{user.badgeCount}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-muted-foreground text-xs">Quizzes</p>
+                        <p className="font-semibold">{user.quizzesTaken}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {users.length === 0 && (
+                  <div className="py-12 text-center text-muted-foreground">
+                    No users found
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
