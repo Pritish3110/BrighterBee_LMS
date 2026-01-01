@@ -291,17 +291,17 @@ export default function CourseAssignments() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate(`/teacher/courses/${courseId}`)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Assignments</h1>
-              <p className="text-muted-foreground">{courseTitle}</p>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate">Assignments</h1>
+              <p className="text-muted-foreground truncate">{courseTitle}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 ml-14 sm:ml-0">
             {selectedIds.size > 0 && (
               <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
                 <AlertDialogTrigger asChild>

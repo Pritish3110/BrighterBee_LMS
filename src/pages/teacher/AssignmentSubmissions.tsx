@@ -205,43 +205,47 @@ export default function AssignmentSubmissions() {
             <div className="space-y-3">
               {submissions.map((submission) => (
                 <Card key={submission.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
-                      <User className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium">
-                          {submission.student?.full_name || 'Unknown Student'}
-                        </h4>
-                        {getStatusBadge(submission)}
+                  <CardContent className="p-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 shrink-0">
+                          <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h4 className="font-medium truncate">
+                              {submission.student?.full_name || 'Unknown Student'}
+                            </h4>
+                            {getStatusBadge(submission)}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Submitted: {format(new Date(submission.submitted_at), 'MMM d, yyyy h:mm a')}
+                          </p>
+                          {submission.file_name && (
+                            <p className="text-sm text-muted-foreground truncate">
+                              File: {submission.file_name}
+                            </p>
+                          )}
+                          {submission.feedback && (
+                            <p className="text-sm mt-2 p-2 bg-muted rounded">
+                              Feedback: {submission.feedback}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Submitted: {format(new Date(submission.submitted_at), 'MMM d, yyyy h:mm a')}
-                      </p>
-                      {submission.file_name && (
-                        <p className="text-sm text-muted-foreground truncate">
-                          File: {submission.file_name}
-                        </p>
-                      )}
-                      {submission.feedback && (
-                        <p className="text-sm mt-1 p-2 bg-muted rounded">
-                          Feedback: {submission.feedback}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      {submission.file_url && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={submission.file_url} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-4 w-4 mr-1" />
-                            Download
-                          </a>
+                      <div className="flex gap-2 sm:flex-col sm:items-end shrink-0">
+                        {submission.file_url && (
+                          <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial">
+                            <a href={submission.file_url} target="_blank" rel="noopener noreferrer">
+                              <Download className="h-4 w-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Download</span>
+                            </a>
+                          </Button>
+                        )}
+                        <Button size="sm" onClick={() => openGradeDialog(submission)} className="flex-1 sm:flex-initial">
+                          {submission.grade ? 'Edit Grade' : 'Grade'}
                         </Button>
-                      )}
-                      <Button size="sm" onClick={() => openGradeDialog(submission)}>
-                        {submission.grade ? 'Edit Grade' : 'Grade'}
-                      </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

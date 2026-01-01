@@ -21,6 +21,7 @@ import Badges from "./pages/student/Badges";
 import Leaderboard from "./pages/student/Leaderboard";
 import StudentCalendar from "./pages/student/StudentCalendar";
 import StudentAssignmentDetail from "./pages/student/StudentAssignmentDetail";
+import StudentAssignments from "./pages/student/StudentAssignments";
 import StudentProfile from "./pages/student/Profile";
 import StudentKits from "./pages/student/Kits";
 import KitDetail from "./pages/student/KitDetail";
@@ -114,6 +115,11 @@ const App = () => (
             <Route path="/student/calendar" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentCalendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/assignments" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentAssignments />
               </ProtectedRoute>
             } />
             <Route path="/student/assignments/:id" element={

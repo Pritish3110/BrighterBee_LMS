@@ -187,31 +187,33 @@ export default function TeacherAssignments() {
           <div className="space-y-3">
             {filteredAssignments.map((assignment) => (
               <Card key={assignment.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium">{assignment.title}</h4>
-                      <Badge variant={assignment.is_overdue ? 'destructive' : 'secondary'}>
-                        {assignment.is_overdue ? 'Past Due' : 'Open'}
-                      </Badge>
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h4 className="font-medium truncate">{assignment.title}</h4>
+                        <Badge variant={assignment.is_overdue ? 'destructive' : 'secondary'}>
+                          {assignment.is_overdue ? 'Past Due' : 'Open'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{assignment.course_title}</p>
+                      <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4 shrink-0" />
+                          Due: {format(new Date(assignment.due_date), 'MMM d, yyyy')}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="h-4 w-4 shrink-0" />
+                          {assignment.submission_count} submissions
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{assignment.course_title}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        Due: {format(new Date(assignment.due_date), 'MMM d, yyyy')}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {assignment.submission_count} submissions
-                      </span>
-                    </div>
+                    <Button asChild className="shrink-0 w-full sm:w-auto">
+                      <Link to={`/teacher/assignments/${assignment.id}/submissions`}>
+                        View Submissions
+                      </Link>
+                    </Button>
                   </div>
-                  <Button asChild>
-                    <Link to={`/teacher/assignments/${assignment.id}/submissions`}>
-                      View Submissions
-                    </Link>
-                  </Button>
                 </CardContent>
               </Card>
             ))}
