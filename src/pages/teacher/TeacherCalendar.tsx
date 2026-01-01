@@ -196,9 +196,9 @@ export default function TeacherCalendar() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Calendar</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Calendar</h1>
             <p className="text-muted-foreground">Manage your classes, meetings, and events</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -206,12 +206,12 @@ export default function TeacherCalendar() {
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Add Event
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
               </DialogHeader>
@@ -314,7 +314,7 @@ export default function TeacherCalendar() {
           </Dialog>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Calendar */}
           <Card className="lg:col-span-2">
             <CardHeader>

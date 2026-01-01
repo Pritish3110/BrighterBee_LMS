@@ -214,12 +214,12 @@ export default function CourseForm() {
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <div className="flex items-start gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               {isEditing ? 'Edit Course' : 'Create New Course'}
             </h1>
             <p className="text-muted-foreground mt-1">
@@ -319,11 +319,11 @@ export default function CourseForm() {
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => navigate(-1)} className="w-full sm:w-auto">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" disabled={saving} className="w-full sm:w-auto">
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -312,8 +312,8 @@ export default function CourseDetail() {
               <p className="text-muted-foreground mt-1">{course.description || 'No description'}</p>
             </div>
           </div>
-          <div className="flex gap-2 ml-14 sm:ml-0">
-            <Button asChild variant="outline">
+          <div className="flex flex-wrap gap-2 ml-14 sm:ml-0">
+            <Button asChild variant="outline" className="flex-1 sm:flex-initial">
               <Link to={`/teacher/courses/${id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
@@ -321,7 +321,7 @@ export default function CourseDetail() {
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive">
+                <Button variant="destructive" className="flex-1 sm:flex-initial">
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </Button>
@@ -380,14 +380,14 @@ export default function CourseDetail() {
               </CardTitle>
               <CardDescription>Create and manage quizzes for this course</CardDescription>
             </CardHeader>
-            <CardContent className="flex gap-3">
-              <Button asChild>
+            <CardContent className="flex flex-wrap gap-3">
+              <Button asChild className="w-full sm:w-auto">
                 <Link to={`/teacher/courses/${id}/quizzes`}>
                   <Plus className="mr-2 h-4 w-4" />
                   Manage Quizzes
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="w-full sm:w-auto">
                 <Link to={`/teacher/courses/${id}/results`}>
                   <BarChart3 className="mr-2 h-4 w-4" />
                   View Results
@@ -408,7 +408,7 @@ export default function CourseDetail() {
               <CardDescription>Create and manage assignments for this course</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild>
+              <Button asChild className="w-full sm:w-auto">
                 <Link to={`/teacher/courses/${id}/assignments`}>
                   <Plus className="mr-2 h-4 w-4" />
                   Manage Assignments

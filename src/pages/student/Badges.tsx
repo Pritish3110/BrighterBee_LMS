@@ -30,10 +30,10 @@ export default function Badges() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Badges & Achievements</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Badges & Achievements</h1>
           <p className="text-muted-foreground mt-1">
             Track your progress and unlock badges as you learn!
           </p>
@@ -42,19 +42,19 @@ export default function Badges() {
         {/* Level Progress */}
         <Card className="bg-honey-gradient-soft border-primary/20">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-6">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-primary-foreground text-3xl font-bold">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary text-primary-foreground text-2xl sm:text-3xl font-bold shrink-0">
                 {level}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 w-full text-center sm:text-left">
                 <h3 className="text-lg font-semibold">Level {level}</h3>
                 <p className="text-sm text-muted-foreground mb-2">
                   {xp} / {xpForNextLevel(level)} XP to next level
                 </p>
                 <Progress value={(xp % 100)} className="h-3" />
               </div>
-              <div className="text-right">
-                <div className="flex items-center gap-2">
+              <div className="text-center sm:text-right">
+                <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Zap className="h-5 w-5 text-primary" />
                   <span className="text-2xl font-bold">{xp}</span>
                 </div>
@@ -65,7 +65,7 @@ export default function Badges() {
         </Card>
 
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
