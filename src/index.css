@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Brighter Bee LMS - Bee-themed Design System */
+
+@layer base {
+  :root {
+    /* Bee-themed colors - warm honey yellows and dark accents */
+    --background: 45 33% 97%;
+    --foreground: 30 10% 15%;
+
+    --card: 45 40% 99%;
+    --card-foreground: 30 10% 15%;
+
+    --popover: 45 40% 99%;
+    --popover-foreground: 30 10% 15%;
+
+    /* Primary - Golden honey yellow */
+    --primary: 45 100% 51%;
+    --primary-foreground: 30 10% 10%;
+
+    /* Secondary - Warm amber */
+    --secondary: 35 90% 55%;
+    --secondary-foreground: 30 10% 10%;
+
+    /* Muted - Soft cream */
+    --muted: 45 30% 92%;
+    --muted-foreground: 30 10% 45%;
+
+    /* Accent - Deep honey */
+    --accent: 38 95% 60%;
+    --accent-foreground: 30 10% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 25% 85%;
+    --input: 40 25% 85%;
+    --ring: 45 100% 51%;
+
+    --radius: 0.75rem;
+
+    /* Success - Green */
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    /* Bee stripes */
+    --bee-dark: 35 100% 8%;
+    --bee-light: 45 100% 51%;
+
+    /* Honeycomb gradient */
+    --honeycomb-from: 45 100% 51%;
+    --honeycomb-to: 35 90% 55%;
+
+    --sidebar-background: 45 40% 99%;
+    --sidebar-foreground: 30 10% 25%;
+    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary-foreground: 30 10% 10%;
+    --sidebar-accent: 45 30% 94%;
+    --sidebar-accent-foreground: 30 10% 15%;
+    --sidebar-border: 40 25% 88%;
+    --sidebar-ring: 45 100% 51%;
+  }
+
+  .dark {
+    --background: 30 15% 10%;
+    --foreground: 45 30% 95%;
+
+    --card: 30 15% 12%;
+    --card-foreground: 45 30% 95%;
+
+    --popover: 30 15% 12%;
+    --popover-foreground: 45 30% 95%;
+
+    --primary: 45 100% 51%;
+    --primary-foreground: 30 10% 10%;
+
+    --secondary: 35 70% 40%;
+    --secondary-foreground: 45 30% 95%;
+
+    --muted: 30 15% 18%;
+    --muted-foreground: 40 20% 60%;
+
+    --accent: 38 80% 50%;
+    --accent-foreground: 30 10% 10%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 45 100% 51%;
+
+    --sidebar-background: 30 15% 12%;
+    --sidebar-foreground: 45 30% 90%;
+    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary-foreground: 30 10% 10%;
+    --sidebar-accent: 30 15% 18%;
+    --sidebar-accent-foreground: 45 30% 95%;
+    --sidebar-border: 30 15% 20%;
+    --sidebar-ring: 45 100% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Nunito', sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Honeycomb pattern background */
+  .honeycomb-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23fbbf24' fill-opacity='0.08'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Gradient backgrounds */
+  .bg-honey-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+  }
+
+  .bg-honey-gradient-soft {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--secondary) / 0.1) 100%);
+  }
+}

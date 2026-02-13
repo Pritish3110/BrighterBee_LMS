@@ -1,0 +1,7 @@
+project_id = "nnwpxdrzhtmzbctuwtsg"
+
+[functions.delete-user]
+verify_jwt = false
+
+[functions.list-users]
+verify_jwt = false
